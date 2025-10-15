@@ -65,7 +65,7 @@ export const TripDetailPage = ({ trip }: TripDetailPageProps) => {
         color: "bg-red-100 text-red-600 border border-red-300",
       },
     };
-    const badge = badges[status];
+    const badge = badges[status] || badges.progress; // Default to progress if status is invalid
     return (
       <span
         className={`px-3 py-1 rounded-lg text-xs font-semibold ${badge.color}`}

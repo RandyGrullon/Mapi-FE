@@ -38,7 +38,7 @@ export const TripDetailView = ({ trip, onClose }: TripDetailViewProps) => {
       completed: { text: "Completado", color: "bg-gray-100 text-gray-800" },
       cancelled: { text: "Cancelado", color: "bg-red-100 text-red-800" },
     };
-    const badge = badges[status];
+    const badge = badges[status] || badges.progress; // Default to progress if status is invalid
     return (
       <span
         className={`px-3 py-1 rounded-full text-xs font-medium ${badge.color}`}
