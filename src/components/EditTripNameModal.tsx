@@ -86,8 +86,18 @@ export const EditTripNameModal = ({
               onClick={onClose}
               className="text-gray-400 hover:text-gray-600 transition-colors"
             >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              <svg
+                className="w-6 h-6"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
               </svg>
             </button>
           </div>
@@ -96,7 +106,10 @@ export const EditTripNameModal = ({
           <div className="p-6">
             <div className="space-y-4">
               <div>
-                <label htmlFor="tripName" className="block text-sm font-medium text-gray-700 mb-2">
+                <label
+                  htmlFor="tripName"
+                  className="block text-sm font-medium text-gray-700 mb-2"
+                >
                   Nuevo nombre
                 </label>
                 <input
@@ -112,7 +125,10 @@ export const EditTripNameModal = ({
               </div>
 
               <div className="text-sm text-gray-500">
-                Viaje actual: <span className="font-medium">{trip.origin} → {trip.destination}</span>
+                Viaje actual:{" "}
+                <span className="font-medium">
+                  {trip.origin} → {trip.destination}
+                </span>
               </div>
             </div>
           </div>
