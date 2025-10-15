@@ -183,6 +183,19 @@ export class CompletedTripsManager {
     }
   }
 
+  // Actualizar nombre de un viaje
+  static updateTripName(id: string, newName: string): void {
+    if (typeof window === "undefined") return;
+
+    const trips = this.getAllTrips();
+    const trip = trips.find((t) => t.id === id);
+
+    if (trip) {
+      trip.name = newName;
+      localStorage.setItem(COMPLETED_TRIPS_KEY, JSON.stringify(trips));
+    }
+  }
+
   // Eliminar un viaje
   static deleteTrip(id: string): void {
     if (typeof window === "undefined") return;
