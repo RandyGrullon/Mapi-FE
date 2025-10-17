@@ -6,13 +6,16 @@ import { TripSummary } from "./TripSummary";
 import { StepCard } from "./StepCard";
 import { StepForm } from "./StepForm";
 import { DualInputStep } from "./DualInputStep";
-import { CompletionMessage } from "./CompletionMessage";
 import { NavigationArrows } from "./NavigationArrows";
 import { SearchButton } from "./SearchButton";
 import { useStepNavigation } from "./useStepNavigation";
+import { useWizard } from "./WizardProvider";
+import { useNavigation } from "./NavigationContext";
 
 export const WizardContent = () => {
   const { isCollapsed } = useSidebar();
+  const { currentDraftId } = useWizard();
+  const { navigateToDrafts } = useNavigation();
   const {
     steps,
     currentStepIndex,
@@ -55,6 +58,33 @@ export const WizardContent = () => {
 
   return (
     <div className="flex-1 flex flex-col overflow-hidden">
+      {/* Botón para salir cuando se edita un borrador */}
+      {currentDraftId && (
+        <div className="p-4 md:p-6 pb-0">
+          <button
+            onClick={navigateToDrafts}
+            className="flex items-center gap-2 text-gray-600 hover:text-gray-800 transition-colors"
+          >
+            <svg
+              className="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M15 19l-7-7 7-7"
+              />
+            </svg>
+            <span className="text-sm font-medium">
+              Ver todos los borradores
+            </span>
+          </button>
+        </div>
+      )}
+
       <div
         ref={contentRef}
         className={`flex-1 overflow-y-auto p-4 md:p-6 transition-all duration-300 ${
@@ -62,78 +92,8 @@ export const WizardContent = () => {
         } flex flex-col justify-start items-center max-w-4xl mx-auto w-full`}
       >
         <div className="space-y-6 w-full pb-8">
-          {visibleSteps.map((step, visibleIndex) => {
-            // Encontrar el índice real del paso en el array completo
-            const index = steps.findIndex((s) => s.id === step.id);
-            const isCurrentStep = index === currentStepIndex;
-
-            return (
-              <StepCard
-                key={step.id}
-                step={step}
-                index={index}
-                currentStepIndex={currentStepIndex}
-                isVisible={true}
-              >
-                {/* Mensaje especial para el último paso */}
-                {isCurrentStep &&
-                  !step.completed &&
-                  !step.locked &&
-                  step.id === "step-8" && (
-                    <CompletionMessage travelInfo={travelInfo} />
-                  )}
-
-                {/* Mostrar dual input para el primer paso (origen y destino) */}
-                {isCurrentStep && !step.locked && step.inputType === "dual" && (
-                  <DualInputStep
-                    onSubmit={handleDualSubmit}
-                    isLoading={isLoading}
-                    processingStage={processingStage}
-                    initialOrigin={travelInfo.origin}
-                    initialDestination={travelInfo.destination}
-                  />
-                )}
-
-                {/* Mostrar formulario si es el paso actual y no es step-8 ni dual */}
-                {isCurrentStep &&
-                  !step.locked &&
-                  step.id !== "step-8" &&
-                  step.inputType !== "dual" && (
-                    <StepForm
-                      step={step}
-                      userInput={userInput}
-                      setUserInput={setUserInput}
-                      selectedOption={selectedOption}
-                      setSelectedOption={setSelectedOption}
-                      selectedOptions={selectedOptions}
-                      setSelectedOptions={setSelectedOptions}
-                      isLoading={isLoading}
-                      processingStage={processingStage}
-                      onSubmit={handleSubmit}
-                      inputRef={inputRef}
-                    />
-                  )}
-              </StepCard>
-            );
-          })}
-
-          {/* Flechas de navegación para modificar respuestas */}
-          {!allStepsCompleted && currentStepIndex > 0 && (
-            <NavigationArrows
-              currentStepIndex={currentStepIndex}
-              totalSteps={steps.length}
-              canGoBack={currentStepIndex > 0}
-              canGoForward={
-                currentStepIndex < steps.length - 1 &&
-                steps[currentStepIndex].completed
-              }
-              onPrevious={handleNavigatePrevious}
-              onNext={handleNavigateNext}
-            />
-          )}
-
           {/* Mostrar resumen solo cuando TODOS los pasos estén completados */}
-          {allStepsCompleted && (
+          {allStepsCompleted ? (
             <>
               <TripSummary />
               <SearchButton
@@ -142,6 +102,74 @@ export const WizardContent = () => {
                   console.log("Buscando opciones con:", travelInfo);
                 }}
               />
+            </>
+          ) : (
+            <>
+              {visibleSteps.map((step, visibleIndex) => {
+                // Encontrar el índice real del paso en el array completo
+                const index = steps.findIndex((s) => s.id === step.id);
+                const isCurrentStep = index === currentStepIndex;
+
+                return (
+                  <StepCard
+                    key={step.id}
+                    step={step}
+                    index={index}
+                    currentStepIndex={currentStepIndex}
+                    isVisible={true}
+                  >
+                    {/* Mensaje especial para el último paso */}
+
+                    {/* Mostrar dual input para el primer paso (origen y destino) */}
+                    {isCurrentStep &&
+                      !step.locked &&
+                      step.inputType === "dual" && (
+                        <DualInputStep
+                          onSubmit={handleDualSubmit}
+                          isLoading={isLoading}
+                          processingStage={processingStage}
+                          initialOrigin={travelInfo.origin}
+                          initialDestination={travelInfo.destination}
+                        />
+                      )}
+
+                    {/* Mostrar formulario si es el paso actual y no es step-8 ni dual */}
+                    {isCurrentStep &&
+                      !step.locked &&
+                      step.id !== "step-8" &&
+                      step.inputType !== "dual" && (
+                        <StepForm
+                          step={step}
+                          userInput={userInput}
+                          setUserInput={setUserInput}
+                          selectedOption={selectedOption}
+                          setSelectedOption={setSelectedOption}
+                          selectedOptions={selectedOptions}
+                          setSelectedOptions={setSelectedOptions}
+                          isLoading={isLoading}
+                          processingStage={processingStage}
+                          onSubmit={handleSubmit}
+                          inputRef={inputRef}
+                        />
+                      )}
+                  </StepCard>
+                );
+              })}
+
+              {/* Flechas de navegación para modificar respuestas */}
+              {currentStepIndex > 0 && (
+                <NavigationArrows
+                  currentStepIndex={currentStepIndex}
+                  totalSteps={steps.length}
+                  canGoBack={currentStepIndex > 0}
+                  canGoForward={
+                    currentStepIndex < steps.length - 1 &&
+                    steps[currentStepIndex].completed
+                  }
+                  onPrevious={handleNavigatePrevious}
+                  onNext={handleNavigateNext}
+                />
+              )}
             </>
           )}
         </div>

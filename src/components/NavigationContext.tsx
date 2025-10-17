@@ -12,7 +12,7 @@ import { CompletedTrip } from "./CompletedTripsManager";
 import { CompletedTripsManager } from "./CompletedTripsManager";
 import { TravelInfo } from "./WizardProvider";
 
-type ViewType = "home" | "wizard" | "trip-detail" | "packages";
+type ViewType = "home" | "wizard" | "trip-detail" | "packages" | "drafts";
 
 interface NavigationContextType {
   currentView: ViewType;
@@ -20,6 +20,7 @@ interface NavigationContextType {
   travelInfo: TravelInfo | null;
   navigateToHome: () => void;
   navigateToWizard: () => void;
+  navigateToDrafts: () => void;
   navigateToTripDetail: (trip: CompletedTrip) => void;
   navigateToPackages: (info: TravelInfo) => void;
 }
@@ -46,6 +47,7 @@ export const NavigationProvider = ({ children }: { children: ReactNode }) => {
   const getCurrentView = (): ViewType => {
     if (pathname === "/") return "home";
     if (pathname === "/plan") return "wizard";
+    if (pathname === "/drafts") return "drafts";
     if (pathname.startsWith("/trip/")) return "trip-detail";
     if (pathname === "/packages") return "packages";
     return "home";
@@ -78,6 +80,12 @@ export const NavigationProvider = ({ children }: { children: ReactNode }) => {
     setTravelInfo(null);
   };
 
+  const navigateToDrafts = () => {
+    router.push("/drafts");
+    setSelectedTrip(null);
+    setTravelInfo(null);
+  };
+
   const navigateToTripDetail = (trip: CompletedTrip) => {
     router.push(`/trip/${trip.id}`);
     setSelectedTrip(trip);
@@ -96,6 +104,7 @@ export const NavigationProvider = ({ children }: { children: ReactNode }) => {
         travelInfo,
         navigateToHome,
         navigateToWizard,
+        navigateToDrafts,
         navigateToTripDetail,
         navigateToPackages,
       }}

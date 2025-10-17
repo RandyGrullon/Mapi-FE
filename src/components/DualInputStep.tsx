@@ -46,11 +46,11 @@ export const DualInputStep = ({
       <form onSubmit={handleSubmit}>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
           {/* Card Origen */}
-          <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-5 border-2 border-blue-200 hover:border-blue-400 transition-all duration-300 hover:shadow-md">
+          <div className="bg-gray-50 border border-gray-200 rounded-lg p-5 hover:border-gray-300 hover:shadow-sm transition-all duration-300">
             <div className="flex items-center gap-2 mb-3">
-              <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center">
+              <div className="w-8 h-8 bg-gray-200 text-gray-600 rounded-full flex items-center justify-center">
                 <svg
-                  className="w-4 h-4 text-white"
+                  className="w-4 h-4"
                   fill="currentColor"
                   viewBox="0 0 24 24"
                 >
@@ -65,18 +65,18 @@ export const DualInputStep = ({
               value={origin}
               onChange={(e) => setOrigin(e.target.value)}
               placeholder="Ej: Santo Domingo, Nueva York..."
-              className="w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-lg outline-none text-black placeholder-gray-400 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
+              className="w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-lg outline-none text-black placeholder-gray-400 text-sm focus:border-black focus:ring-2 focus:ring-black/5 transition-all"
               disabled={isLoading}
               autoFocus
             />
           </div>
 
           {/* Card Destino */}
-          <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-5 border-2 border-green-200 hover:border-green-400 transition-all duration-300 hover:shadow-md">
+          <div className="bg-gray-50 border border-gray-200 rounded-lg p-5 hover:border-gray-300 hover:shadow-sm transition-all duration-300">
             <div className="flex items-center gap-2 mb-3">
-              <div className="w-8 h-8 bg-gradient-to-br from-green-500 to-emerald-600 rounded-full flex items-center justify-center">
+              <div className="w-8 h-8 bg-gray-200 text-gray-600 rounded-full flex items-center justify-center">
                 <svg
-                  className="w-4 h-4 text-white"
+                  className="w-4 h-4"
                   fill="currentColor"
                   viewBox="0 0 24 24"
                 >
@@ -90,7 +90,7 @@ export const DualInputStep = ({
               value={destination}
               onChange={(e) => setDestination(e.target.value)}
               placeholder="Ej: París, Tokio, Cancún..."
-              className="w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-lg outline-none text-black placeholder-gray-400 text-sm focus:border-green-500 focus:ring-2 focus:ring-green-100 transition-all"
+              className="w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-lg outline-none text-black placeholder-gray-400 text-sm focus:border-black focus:ring-2 focus:ring-black/5 transition-all"
               disabled={isLoading}
             />
           </div>
@@ -101,7 +101,7 @@ export const DualInputStep = ({
           <button
             type="submit"
             disabled={!canSubmit}
-            className="px-6 py-3 rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 disabled:opacity-40 disabled:cursor-not-allowed transform active:scale-95 shadow-md hover:shadow-lg flex items-center gap-2"
+            className="px-6 py-3 rounded-lg bg-black text-white font-semibold hover:bg-black/90 transition-all duration-300 disabled:opacity-40 disabled:cursor-not-allowed transform active:scale-95 shadow-md hover:shadow-lg flex items-center gap-2"
           >
             {isLoading ? (
               <>

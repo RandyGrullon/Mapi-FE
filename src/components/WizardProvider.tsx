@@ -7,6 +7,7 @@ import {
   ReactNode,
   useEffect,
 } from "react";
+import { usePathname } from "next/navigation";
 import { DraftManager } from "./DraftManager";
 
 export type WizardStep = {
@@ -155,12 +156,6 @@ export const WizardProvider = ({ children }: { children: ReactNode }) => {
         "Lujo (más de $10,000 USD)",
       ],
     },
-    {
-      id: "step-8",
-      title: "¡Tu plan de viaje está listo!",
-      completed: false,
-      locked: true,
-    },
   ]);
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
   const [userInput, setUserInput] = useState("");
@@ -178,6 +173,15 @@ export const WizardProvider = ({ children }: { children: ReactNode }) => {
     budget: "",
     organizedActivities: false,
   });
+
+  const pathname = usePathname();
+
+  // Limpiar currentDraftId cuando no estamos en el wizard
+  useEffect(() => {
+    if (pathname !== "/plan" && currentDraftId) {
+      setCurrentDraftId(null);
+    }
+  }, [pathname, currentDraftId]);
 
   // Auto-guardar draft cuando hay cambios
   useEffect(() => {
@@ -391,12 +395,6 @@ export const WizardProvider = ({ children }: { children: ReactNode }) => {
           "Premium ($5,000 - $10,000 USD)",
           "Lujo (más de $10,000 USD)",
         ],
-      },
-      {
-        id: "step-8",
-        title: "¡Tu plan de viaje está listo!",
-        completed: false,
-        locked: true,
       },
     ]);
     setCurrentStepIndex(0);

@@ -140,25 +140,6 @@ export const TripSummary = () => {
             </div>
           </div>
         )}
-
-      {/* Footer con mensaje motivador */}
-      <div className="mt-4 md:mt-6 pt-4 md:pt-6 border-t border-gray-100">
-        <div className="bg-gray-900 rounded-xl p-3 md:p-5 text-white overflow-hidden">
-          <div className="flex items-start gap-2 md:gap-3">
-            <span className="text-xl md:text-2xl flex-shrink-0">🌟</span>
-            <div className="min-w-0 flex-1">
-              <p className="font-semibold mb-1 text-sm md:text-base">
-                ¡Tu aventura está tomando forma!
-              </p>
-              <p className="text-xs md:text-sm text-gray-300">
-                Con esta información podemos crear un plan de viaje perfecto y
-                personalizado. Continúa para recibir recomendaciones exclusivas
-                adaptadas a tus preferencias.
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
     </div>
   );
 };

@@ -64,15 +64,11 @@ export const WizardSteps = () => {
   const progress =
     steps.length > 1 ? (currentStepIndex / (steps.length - 1)) * 100 : 0;
 
-  // Determinar el color del gradiente basado en el progreso
+  // Determinar el color del gradiente basado en el progreso y el paso actual
   const gradientClass =
-    progress >= 95
-      ? "from-green-500 to-green-400"
-      : progress >= 70
-      ? "from-blue-500 via-teal-400 to-green-500"
-      : progress >= 30
-      ? "from-blue-500 to-teal-400"
-      : "from-indigo-500 to-blue-500";
+    currentStepIndex === 6 // Presupuesto
+      ? "from-emerald-300 to-emerald-500"
+      : "from-gray-400 to-gray-600";
 
   // Obtener el título del paso actual si existe
   const currentStep = steps[currentStepIndex];
@@ -82,7 +78,7 @@ export const WizardSteps = () => {
   const getStepIcon = () => {
     switch (currentStepIndex) {
       case 0: // Origen + Destino (dual input)
-        return StepIcons.route;
+        return StepIcons.plane;
       case 1: // Fechas
         return StepIcons.calendar;
       case 2: // Viajeros
@@ -99,30 +95,6 @@ export const WizardSteps = () => {
         return StepIcons.check;
       default:
         return StepIcons.plane;
-    }
-  };
-
-  // Determinar el texto descriptivo del icono (8 pasos totales)
-  const getIconDescription = () => {
-    switch (currentStepIndex) {
-      case 0:
-        return "Planificando tu ruta";
-      case 1:
-        return "Seleccionando fechas";
-      case 2:
-        return "Contando viajeros";
-      case 3:
-        return "Eligiendo vuelo";
-      case 4:
-        return "Buscando alojamiento";
-      case 5:
-        return "Explorando actividades";
-      case 6:
-        return "Calculando presupuesto";
-      case 7:
-        return "¡Todo listo!";
-      default:
-        return "";
     }
   };
 
@@ -164,15 +136,11 @@ export const WizardSteps = () => {
                 {/* Contenedor del icono con animación */}
                 <div
                   className={`
-                    bg-white rounded-full p-2 sm:p-2.5 shadow-lg border-2 
+                    bg-white/90 backdrop-blur-sm rounded-full p-1.5 shadow-md border border-white/20
                     ${
-                      progress >= 95
-                        ? "border-green-500 text-green-600"
-                        : progress >= 70
-                        ? "border-teal-500 text-teal-600"
-                        : progress >= 30
-                        ? "border-blue-500 text-blue-600"
-                        : "border-indigo-500 text-indigo-600"
+                      currentStepIndex === 6
+                        ? "text-emerald-600"
+                        : "text-gray-600"
                     }
                     ${
                       currentStepIndex === 3
@@ -188,14 +156,6 @@ export const WizardSteps = () => {
                   `}
                 >
                   {getStepIcon()}
-                </div>
-
-                {/* Tooltip con descripción */}
-                <div className="absolute -bottom-12 left-1/2 transform -translate-x-1/2 whitespace-nowrap">
-                  <div className="bg-gray-800 text-white text-xs px-3 py-1.5 rounded-lg shadow-lg animate-fade-in">
-                    {getIconDescription()}
-                    <div className="absolute -top-1 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-gray-800 rotate-45"></div>
-                  </div>
                 </div>
               </div>
             )}
