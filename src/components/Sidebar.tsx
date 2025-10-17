@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { usePathname } from "next/navigation";
 import { useWizard } from "./WizardProvider";
 import { useSidebar } from "./SidebarContext";
 import { DraftManager, Draft } from "./DraftManager";
@@ -37,7 +38,19 @@ export const Sidebar = () => {
   });
   const { isCollapsed, setIsCollapsed } = useSidebar();
   const { resetWizard, loadDraft, currentDraftId } = useWizard();
-  const { navigateToTripDetail, navigateToWizard } = useNavigation();
+  const { navigateToTripDetail, navigateToWizard, navigateToHome } =
+    useNavigation();
+  const pathname = usePathname();
+
+  // Determinar el viaje seleccionado basado en la URL
+  const getSelectedTripId = (): string | null => {
+    if (pathname.startsWith("/trip/")) {
+      return pathname.split("/trip/")[1];
+    }
+    return null;
+  };
+
+  const selectedTripId = getSelectedTripId();
 
   // Inicializar viajes demo una sola vez
   useEffect(() => {
@@ -512,15 +525,18 @@ export const Sidebar = () => {
                             completed: "✅",
                             cancelled: "❌",
                           };
+                          const isSelected = selectedTripId === trip.id;
                           return (
-                            <button
+                            <div
                               key={trip.id}
                               onClick={() => {
                                 navigateToTripDetail(trip);
                                 setIsMobileSidebarOpen(false);
                               }}
-                              className={`w-full p-3 rounded-lg transition-all duration-200 text-left group relative border-2 ${
-                                statusColors[trip.status]
+                              className={`w-full p-3 rounded-lg transition-all duration-200 text-left group relative border-2 cursor-pointer ${
+                                isSelected
+                                  ? "border-blue-500 bg-blue-100 shadow-md ring-2 ring-blue-200"
+                                  : statusColors[trip.status]
                               } hover:shadow-md`}
                               title={trip.name}
                             >
@@ -552,7 +568,10 @@ export const Sidebar = () => {
                                 {/* Action buttons - visible on hover */}
                                 <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0">
                                   <button
-                                    onClick={(e) => handleEditTripName(trip, e)}
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleEditTripName(trip, e);
+                                    }}
                                     className="p-1.5 rounded-md hover:bg-white/80 transition-colors"
                                     title="Editar nombre"
                                   >
@@ -571,7 +590,10 @@ export const Sidebar = () => {
                                     </svg>
                                   </button>
                                   <button
-                                    onClick={(e) => handleShareTrip(trip, e)}
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleShareTrip(trip, e);
+                                    }}
                                     className="p-1.5 rounded-md hover:bg-white/80 transition-colors"
                                     title="Compartir viaje"
                                   >
@@ -590,7 +612,10 @@ export const Sidebar = () => {
                                     </svg>
                                   </button>
                                   <button
-                                    onClick={(e) => handleDeleteTrip(trip, e)}
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleDeleteTrip(trip, e);
+                                    }}
                                     className="p-1.5 rounded-md hover:bg-white/80 transition-colors"
                                     title="Eliminar viaje"
                                   >
@@ -610,7 +635,7 @@ export const Sidebar = () => {
                                   </button>
                                 </div>
                               </div>
-                            </button>
+                            </div>
                           );
                         })}
                       </div>

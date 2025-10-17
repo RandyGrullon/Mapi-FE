@@ -7,11 +7,10 @@ import { WizardProvider } from "./WizardProvider";
 import { useWizard } from "./WizardProvider";
 import { SidebarProvider } from "./SidebarContext";
 import { NavigationProvider, useNavigation } from "./NavigationContext";
-import { TripDetailPage } from "./TripDetailPage";
-import { TravelPackagesPage } from "./TravelPackagesPage";
 
 const WizardHeader = () => {
   const { steps, resetWizard, travelInfo } = useWizard();
+  const { navigateToWizard } = useNavigation();
   const hasStarted = steps.some((step) => step.completed);
 
   return (
@@ -45,7 +44,10 @@ const WizardHeader = () => {
         <div className="flex items-center gap-2 md:gap-4">
           {hasStarted && (
             <button
-              onClick={resetWizard}
+              onClick={() => {
+                resetWizard();
+                navigateToWizard();
+              }}
               className="p-2 rounded-lg hover:bg-gray-100 transition-colors text-gray-500 hover:text-gray-700"
               title="Nuevo viaje"
             >
@@ -78,22 +80,14 @@ const WizardHeader = () => {
 };
 
 const WizardLayoutContent = ({ children }: { children: ReactNode }) => {
-  const { currentView, selectedTrip, travelInfo } = useNavigation();
-
   return (
     <div className="flex h-screen bg-gray-50 overflow-hidden">
       <Sidebar />
 
-      {currentView === "wizard" ? (
-        <div className="flex-1 flex flex-col">
-          <WizardHeader />
-          {children}
-        </div>
-      ) : currentView === "trip-detail" && selectedTrip ? (
-        <TripDetailPage trip={selectedTrip} />
-      ) : currentView === "packages" && travelInfo ? (
-        <TravelPackagesPage travelInfo={travelInfo} />
-      ) : null}
+      <div className="flex-1 flex flex-col">
+        <WizardHeader />
+        {children}
+      </div>
     </div>
   );
 };

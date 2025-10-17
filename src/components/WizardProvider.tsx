@@ -181,12 +181,13 @@ export const WizardProvider = ({ children }: { children: ReactNode }) => {
 
   // Auto-guardar draft cuando hay cambios
   useEffect(() => {
-    // Solo auto-guardar si hay progreso (al menos un paso completado o datos ingresados)
+    // Solo auto-guardar si hay progreso (al menos un paso completado, datos ingresados, o input actual)
     const hasProgress =
       steps.some((s) => s.completed) ||
       travelInfo.origin ||
       travelInfo.destination ||
-      travelInfo.travelDates;
+      travelInfo.travelDates ||
+      userInput.trim().length > 0;
 
     if (hasProgress) {
       const draftId = DraftManager.saveDraft(
@@ -197,7 +198,7 @@ export const WizardProvider = ({ children }: { children: ReactNode }) => {
       );
       setCurrentDraftId(draftId);
     }
-  }, [steps, currentStepIndex, travelInfo]);
+  }, [steps, currentStepIndex, travelInfo, userInput]);
 
   // Cargar draft al iniciar si existe uno activo
   useEffect(() => {

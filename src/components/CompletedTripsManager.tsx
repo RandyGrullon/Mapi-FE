@@ -17,6 +17,7 @@ export type HotelReservation = {
   totalPrice: number;
   pricePerNight: number;
   imageUrl?: string;
+  bookingUrl?: string; // URL para reservar el hotel
 };
 
 // Tipo para una reserva de vuelo
@@ -36,6 +37,7 @@ export type FlightReservation = {
   price: number;
   baggage: string;
   type: "outbound" | "return"; // Ida o vuelta
+  bookingUrl?: string; // URL para reservar/comprar el vuelo
 };
 
 // Tipo para una actividad reservada
@@ -52,6 +54,7 @@ export type ActivityReservation = {
   confirmationCode: string;
   included: string[];
   imageUrl?: string;
+  bookingUrl?: string; // URL para reservar la actividad
 };
 
 // Tipo para el itinerario diario
@@ -240,6 +243,9 @@ export class CompletedTripsManager {
       price: 450,
       baggage: "1 maleta de 23kg + equipaje de mano",
       type: "outbound",
+      bookingUrl: `https://www.iberia.com/es/flight/${travelInfo.origin}-${
+        travelInfo.destination
+      }/${startDate.toISOString().split("T")[0]}/`,
     };
 
     // Generar reserva de vuelo de regreso
@@ -261,6 +267,9 @@ export class CompletedTripsManager {
       price: 450,
       baggage: "1 maleta de 23kg + equipaje de mano",
       type: "return",
+      bookingUrl: `https://www.iberia.com/es/flight/${travelInfo.destination}-${
+        travelInfo.origin
+      }/${endDate.toISOString().split("T")[0]}/`,
     };
 
     // Generar reserva de hotel
@@ -287,6 +296,9 @@ export class CompletedTripsManager {
         .toUpperCase()}`,
       totalPrice: 980,
       pricePerNight: 140,
+      bookingUrl: `https://www.booking.com/hotel/es/grand-hotel-${travelInfo.destination
+        .toLowerCase()
+        .replace(/\s+/g, "-")}.es.html`,
     };
 
     // Generar actividades
@@ -315,6 +327,11 @@ export class CompletedTripsManager {
           .substr(2, 6)
           .toUpperCase()}`,
         included: ["Guía profesional", "Transporte", "Entrada"],
+        bookingUrl: `https://www.viator.com/es-ES/${travelInfo.destination
+          .toLowerCase()
+          .replace(/\s+/g, "-")}/tours/${category
+          .toLowerCase()
+          .replace(/\s+/g, "-")}`,
       });
     });
 

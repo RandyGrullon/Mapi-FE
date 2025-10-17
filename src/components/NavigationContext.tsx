@@ -1,15 +1,24 @@
 "use client";
 
-import { createContext, useContext, useState, ReactNode } from "react";
+import {
+  createContext,
+  useContext,
+  useState,
+  ReactNode,
+  useEffect,
+} from "react";
+import { useRouter, usePathname } from "next/navigation";
 import { CompletedTrip } from "./CompletedTripsManager";
+import { CompletedTripsManager } from "./CompletedTripsManager";
 import { TravelInfo } from "./WizardProvider";
 
-type ViewType = "wizard" | "trip-detail" | "packages";
+type ViewType = "home" | "wizard" | "trip-detail" | "packages";
 
 interface NavigationContextType {
   currentView: ViewType;
   selectedTrip: CompletedTrip | null;
   travelInfo: TravelInfo | null;
+  navigateToHome: () => void;
   navigateToWizard: () => void;
   navigateToTripDetail: (trip: CompletedTrip) => void;
   navigateToPackages: (info: TravelInfo) => void;
@@ -28,24 +37,55 @@ export const useNavigation = () => {
 };
 
 export const NavigationProvider = ({ children }: { children: ReactNode }) => {
-  const [currentView, setCurrentView] = useState<ViewType>("wizard");
+  const router = useRouter();
+  const pathname = usePathname();
   const [selectedTrip, setSelectedTrip] = useState<CompletedTrip | null>(null);
   const [travelInfo, setTravelInfo] = useState<TravelInfo | null>(null);
 
+  // Determinar la vista actual basada en la URL
+  const getCurrentView = (): ViewType => {
+    if (pathname === "/") return "home";
+    if (pathname === "/plan") return "wizard";
+    if (pathname.startsWith("/trip/")) return "trip-detail";
+    if (pathname === "/packages") return "packages";
+    return "home";
+  };
+
+  const currentView = getCurrentView();
+
+  // Actualizar selectedTrip cuando estamos en una página de viaje
+  useEffect(() => {
+    if (currentView === "trip-detail" && pathname.startsWith("/trip/")) {
+      const tripId = pathname.split("/trip/")[1];
+      if (tripId) {
+        const trip = CompletedTripsManager.getTrip(tripId);
+        setSelectedTrip(trip || null);
+      }
+    } else {
+      setSelectedTrip(null);
+    }
+  }, [pathname, currentView]);
+
+  const navigateToHome = () => {
+    router.push("/");
+    setSelectedTrip(null);
+    setTravelInfo(null);
+  };
+
   const navigateToWizard = () => {
-    setCurrentView("wizard");
+    router.push("/plan");
     setSelectedTrip(null);
     setTravelInfo(null);
   };
 
   const navigateToTripDetail = (trip: CompletedTrip) => {
+    router.push(`/trip/${trip.id}`);
     setSelectedTrip(trip);
-    setCurrentView("trip-detail");
   };
 
   const navigateToPackages = (info: TravelInfo) => {
     setTravelInfo(info);
-    setCurrentView("packages");
+    router.push("/packages");
   };
 
   return (
@@ -54,6 +94,7 @@ export const NavigationProvider = ({ children }: { children: ReactNode }) => {
         currentView,
         selectedTrip,
         travelInfo,
+        navigateToHome,
         navigateToWizard,
         navigateToTripDetail,
         navigateToPackages,

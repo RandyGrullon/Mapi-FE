@@ -1,7 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
+import { NavigationProvider } from "@/components/NavigationContext";
+import { WizardProvider } from "@/components/WizardProvider";
+import { SidebarProvider } from "@/components/SidebarContext";
+import { Sidebar } from "@/components/Sidebar";
 
 interface UserStats {
   totalTrips: number;
@@ -20,7 +23,7 @@ interface TripHistory {
   price: number;
 }
 
-export default function ProfilePage() {
+const ProfilePageContent = () => {
   const [activeTab, setActiveTab] = useState<
     "overview" | "history" | "settings"
   >("overview");
@@ -64,43 +67,7 @@ export default function ProfilePage() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-snow via-snow to-gray-50">
-      {/* Header */}
-      <header className="bg-white/80 backdrop-blur-md border-b border-black/5 sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-4 md:px-6 py-4 md:py-5 flex items-center justify-between">
-          <Link
-            href="/"
-            className="flex items-center gap-3 hover:opacity-80 transition-opacity"
-          >
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-black to-black-olive flex items-center justify-center shadow-lg">
-              <span className="text-white font-bold text-sm">M</span>
-            </div>
-            <h1 className="text-xl md:text-2xl font-bold bg-gradient-to-r from-black via-black-olive to-black bg-clip-text text-transparent">
-              Mapi
-            </h1>
-          </Link>
-
-          <Link
-            href="/"
-            className="p-2 rounded-lg hover:bg-black/5 transition-all duration-200"
-          >
-            <svg
-              className="w-6 h-6 text-black/60"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M6 18L18 6M6 6l12 12"
-              />
-            </svg>
-          </Link>
-        </div>
-      </header>
-
+    <div className="p-6 md:p-8">
       <div className="max-w-7xl mx-auto px-4 md:px-6 py-8 md:py-12">
         {/* Profile Header */}
         <div className="bg-white rounded-3xl shadow-xl p-6 md:p-8 mb-8 border-2 border-black/5">
@@ -721,5 +688,29 @@ export default function ProfilePage() {
         </div>
       </div>
     </div>
+  );
+};
+
+const ProfilePageLayout = () => {
+  return (
+    <div className="flex h-screen bg-gray-50 overflow-hidden">
+      <Sidebar />
+
+      <div className="flex-1 flex flex-col">
+        <ProfilePageContent />
+      </div>
+    </div>
+  );
+};
+
+export default function ProfilePage() {
+  return (
+    <NavigationProvider>
+      <WizardProvider>
+        <SidebarProvider>
+          <ProfilePageLayout />
+        </SidebarProvider>
+      </WizardProvider>
+    </NavigationProvider>
   );
 }

@@ -893,7 +893,5 @@ export class DemoTripsInitializer {
         CompletedTripsManager.deleteTrip(id);
       }
     });
-
-    console.log("Demo trips reset complete");
   }
 }

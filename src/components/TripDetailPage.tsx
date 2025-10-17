@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   CompletedTrip,
   CompletedTripsManager,
@@ -19,6 +19,11 @@ export const TripDetailPage = ({ trip }: TripDetailPageProps) => {
     "overview" | "flights" | "hotel" | "activities" | "itinerary" | "budget"
   >("overview");
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   const openGoogleMaps = (location: string) => {
     const query = encodeURIComponent(location);
@@ -85,7 +90,10 @@ export const TripDetailPage = ({ trip }: TripDetailPageProps) => {
   ];
 
   return (
-    <div className="flex-1 overflow-hidden flex flex-col bg-gray-50">
+    <div
+      className="flex-1 overflow-hidden flex flex-col bg-gray-50"
+      suppressHydrationWarning
+    >
       {/* Header */}
       <div className="bg-white border-b border-gray-200 p-6 shadow-sm">
         <div className="max-w-7xl mx-auto">
@@ -192,12 +200,15 @@ export const TripDetailPage = ({ trip }: TripDetailPageProps) => {
           {activeTab === "overview" && (
             <OverviewTab trip={trip} openGoogleMaps={openGoogleMaps} />
           )}
-          {activeTab === "flights" && <FlightsTab trip={trip} />}
+          {activeTab === "flights" && (
+            <FlightsTab trip={trip} status={trip.status} isClient={isClient} />
+          )}
           {activeTab === "hotel" && (
             <HotelTab
               trip={trip}
               status={trip.status}
               openGoogleMaps={openGoogleMaps}
+              isClient={isClient}
             />
           )}
           {activeTab === "activities" && (
@@ -205,6 +216,7 @@ export const TripDetailPage = ({ trip }: TripDetailPageProps) => {
               trip={trip}
               status={trip.status}
               openGoogleMaps={openGoogleMaps}
+              isClient={isClient}
             />
           )}
           {activeTab === "itinerary" && (
@@ -327,7 +339,15 @@ const OverviewTab = ({
 };
 
 // Tab: Vuelos
-const FlightsTab = ({ trip }: { trip: CompletedTrip }) => {
+const FlightsTab = ({
+  trip,
+  status,
+  isClient,
+}: {
+  trip: CompletedTrip;
+  status: CompletedTrip["status"];
+  isClient: boolean;
+}) => {
   const FlightCard = ({ flight, type }: { flight: any; type: string }) => (
     <div className="bg-white rounded-xl border border-gray-200 p-6 hover:border-gray-300 hover:shadow-sm transition-all animate-fade-in">
       <div className="flex items-center justify-between mb-4">
@@ -393,6 +413,21 @@ const FlightsTab = ({ trip }: { trip: CompletedTrip }) => {
             ${flight.price}
           </span>
         </div>
+
+        {isClient &&
+          (status === "progress" || status === "ongoing") &&
+          flight.bookingUrl && (
+            <div className="pt-4 border-t border-gray-200">
+              <a
+                href={flight.bookingUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full bg-blue-600 text-white px-4 py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium text-center block"
+              >
+                Reservar Vuelo
+              </a>
+            </div>
+          )}
       </div>
     </div>
   );
@@ -412,10 +447,12 @@ const HotelTab = ({
   trip,
   status,
   openGoogleMaps,
+  isClient,
 }: {
   trip: CompletedTrip;
   status: CompletedTrip["status"];
   openGoogleMaps: (location: string) => void;
+  isClient: boolean;
 }) => {
   const hotel = trip.hotel;
   const isInteractive = status === "progress" || status === "ongoing";
@@ -535,6 +572,29 @@ const HotelTab = ({
             </p>
           </div>
         </div>
+        {isClient && isInteractive && hotel.bookingUrl && (
+          <a
+            href={hotel.bookingUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-3 flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm font-medium w-full justify-center"
+          >
+            <svg
+              className="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
+            Reservar Hotel
+          </a>
+        )}
       </div>
     </div>
   );
@@ -545,10 +605,12 @@ const ActivitiesTab = ({
   trip,
   status,
   openGoogleMaps,
+  isClient,
 }: {
   trip: CompletedTrip;
   status: CompletedTrip["status"];
   openGoogleMaps: (location: string) => void;
+  isClient: boolean;
 }) => {
   const isInteractive = status === "progress" || status === "ongoing";
   const isCancelled = status === "cancelled";
@@ -698,6 +760,30 @@ const ActivitiesTab = ({
                 </svg>
                 Ver en Google Maps
               </button>
+            )}
+
+            {isClient && isInteractive && activity.bookingUrl && (
+              <a
+                href={activity.bookingUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors text-sm font-medium mt-2"
+              >
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+                Reservar Actividad
+              </a>
             )}
           </div>
         ))}
