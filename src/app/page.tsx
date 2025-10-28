@@ -1,10 +1,10 @@
 "use client";
 
-import { NavigationProvider } from "@/components/NavigationContext";
-import { WizardProvider } from "@/components/WizardProvider";
-import { SidebarProvider } from "@/components/SidebarContext";
-import { Sidebar } from "@/components/Sidebar";
-import { useNavigation } from "@/components/NavigationContext";
+import { NavigationProvider } from "@/components/navigation/NavigationContext";
+import { WizardProvider } from "@/components/wizard/WizardProvider";
+import { SidebarProvider } from "@/components/sidebar/SidebarContext";
+import { Sidebar } from "@/components/sidebar/Sidebar";
+import { useNavigation } from "@/components/navigation/NavigationContext";
 
 const HomePage = () => {
   const { navigateToWizard } = useNavigation();

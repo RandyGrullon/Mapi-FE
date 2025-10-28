@@ -1,13 +1,13 @@
 "use client";
 
-import { NavigationProvider } from "@/components/NavigationContext";
-import { WizardProvider } from "@/components/WizardProvider";
-import { SidebarProvider } from "@/components/SidebarContext";
-import { Sidebar } from "@/components/Sidebar";
-import { WizardSteps } from "@/components/WizardSteps";
-import { WizardContent } from "@/components/WizardContent";
-import { useWizard } from "@/components/WizardProvider";
-import { useNavigation } from "@/components/NavigationContext";
+import { NavigationProvider } from "@/components/navigation/NavigationContext";
+import { WizardProvider } from "@/components/wizard/WizardProvider";
+import { SidebarProvider } from "@/components/sidebar/SidebarContext";
+import { Sidebar } from "@/components/sidebar/Sidebar";
+import { WizardSteps } from "@/components/wizard/WizardSteps";
+import { WizardContent } from "@/components/wizard/WizardContent";
+import { useWizard } from "@/components/wizard/WizardProvider";
+import { useNavigation } from "@/components/navigation/NavigationContext";
 
 const PlanPageLayout = () => {
   const { travelInfo, resetWizard } = useWizard();

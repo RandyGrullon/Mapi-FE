@@ -1,10 +1,10 @@
 "use client";
 
-import { useDraftsPage } from "@/components/useDraftsPage";
-import { DraftCard } from "@/components/DraftCard";
-import { EmptyDraftsState } from "@/components/EmptyDraftsState";
-import { DraftsHeader } from "@/components/DraftsHeader";
-import { DeleteDraftModal } from "@/components/DeleteDraftModal";
+import { useDraftsPage } from "@/components/drafts/useDraftsPage";
+import { DraftCard } from "@/components/drafts/DraftCard";
+import { EmptyDraftsState } from "@/components/drafts/EmptyDraftsState";
+import { DraftsHeader } from "@/components/drafts/DraftsHeader";
+import { DeleteDraftModal } from "@/components/drafts/DeleteDraftModal";
 
 const DraftsPage = () => {
   const {

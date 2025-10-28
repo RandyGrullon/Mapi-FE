@@ -2,15 +2,15 @@
 
 import { useParams } from "next/navigation";
 import { useState, useEffect } from "react";
-import { TripDetailPage } from "@/components/TripDetailPage";
+import { TripDetailPage } from "@/components/trips/TripDetailPage";
 import {
   CompletedTripsManager,
   CompletedTrip,
-} from "@/components/CompletedTripsManager";
-import { NavigationProvider } from "@/components/NavigationContext";
-import { WizardProvider } from "@/components/WizardProvider";
-import { SidebarProvider } from "@/components/SidebarContext";
-import { Sidebar } from "@/components/Sidebar";
+} from "@/components/trips/CompletedTripsManager";
+import { NavigationProvider } from "@/components/navigation/NavigationContext";
+import { WizardProvider } from "@/components/wizard/WizardProvider";
+import { SidebarProvider } from "@/components/sidebar/SidebarContext";
+import { Sidebar } from "@/components/sidebar/Sidebar";
 
 const TripPageContent = () => {
   const params = useParams();

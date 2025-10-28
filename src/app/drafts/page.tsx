@@ -1,9 +1,9 @@
 "use client";
 
-import { NavigationProvider } from "@/components/NavigationContext";
-import { WizardProvider } from "@/components/WizardProvider";
-import { SidebarProvider } from "@/components/SidebarContext";
-import { Sidebar } from "@/components/Sidebar";
+import { NavigationProvider } from "@/components/navigation/NavigationContext";
+import { WizardProvider } from "@/components/wizard/WizardProvider";
+import { SidebarProvider } from "@/components/sidebar/SidebarContext";
+import { Sidebar } from "@/components/sidebar/Sidebar";
 import DraftsPage from "./DraftsPage";
 
 const DraftsLayout = () => {
