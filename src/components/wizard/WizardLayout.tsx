@@ -70,10 +70,10 @@ const WizardHeader = () => {
             </button>
           )}
 
-          <button className="px-3 py-1.5 md:px-4 md:py-2 bg-black text-white rounded-lg hover:bg-black/90 transition-all duration-200 text-sm flex items-center gap-1.5">
+          {/* <button className="px-3 py-1.5 md:px-4 md:py-2 bg-black text-white rounded-lg hover:bg-black/90 transition-all duration-200 text-sm flex items-center gap-1.5">
             <span>🔍</span>
             <span>Explorar</span>
-          </button>
+          </button> */}
         </div>
       </div>
 

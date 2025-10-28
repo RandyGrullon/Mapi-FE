@@ -3,17 +3,14 @@
 import { NavigationProvider } from "@/components/navigation/NavigationContext";
 import { WizardProvider } from "@/components/wizard/WizardProvider";
 import { SidebarProvider } from "@/components/sidebar/SidebarContext";
-import { Sidebar } from "@/components/sidebar/Sidebar";
 import { useNavigation } from "@/components/navigation/NavigationContext";
 
 const HomePage = () => {
   const { navigateToWizard } = useNavigation();
 
   return (
-    <div className="flex h-screen bg-gray-50 overflow-hidden">
-      <Sidebar />
-
-      <div className="flex-1 overflow-y-auto overflow-x-hidden">
+    <div className="h-screen bg-gray-50 overflow-hidden">
+      <div className="overflow-y-auto overflow-x-hidden">
         {/* Hero Section */}
         <section className="bg-black text-white py-20 px-6">
           <div className="max-w-4xl mx-auto text-center">
@@ -212,9 +209,7 @@ export default function Home() {
   return (
     <NavigationProvider>
       <WizardProvider>
-        <SidebarProvider>
-          <HomePage />
-        </SidebarProvider>
+        <HomePage />
       </WizardProvider>
     </NavigationProvider>
   );
