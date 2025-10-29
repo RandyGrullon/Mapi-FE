@@ -93,6 +93,10 @@ export const Sidebar = () => {
   const confirmDeleteDraft = () => {
     if (draftToDelete) {
       deleteDraft(draftToDelete);
+      // Si el borrador eliminado es el que se está editando actualmente, resetear el wizard
+      if (draftToDelete === currentDraftId) {
+        resetWizard();
+      }
       setDraftToDelete(null);
     }
     setIsDeleteModalOpen(false);

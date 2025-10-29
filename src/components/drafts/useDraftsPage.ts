@@ -7,7 +7,7 @@ import { DraftManager, Draft } from "./DraftManager";
 
 export const useDraftsPage = () => {
   const { navigateToWizard } = useNavigation();
-  const { resetWizard } = useWizard();
+  const { resetWizard, currentDraftId } = useWizard();
   const [drafts, setDrafts] = useState<Draft[]>([]);
   const [draftToDelete, setDraftToDelete] = useState<string | null>(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -25,6 +25,10 @@ export const useDraftsPage = () => {
     if (draftToDelete) {
       DraftManager.deleteDraft(draftToDelete);
       setDrafts(DraftManager.getAllDrafts());
+      // Si el borrador eliminado es el que se está editando actualmente, resetear el wizard
+      if (draftToDelete === currentDraftId) {
+        resetWizard();
+      }
       setDraftToDelete(null);
     }
     setIsDeleteModalOpen(false);
