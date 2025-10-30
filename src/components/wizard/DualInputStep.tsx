@@ -38,7 +38,7 @@ export const DualInputStep = ({
   const canSubmit = origin.trim() && destination.trim() && !isLoading;
 
   return (
-    <div className="pl-14 space-y-4">
+    <div className=" space-y-4">
       <p className="text-sm text-gray-500 italic">
         Cuéntanos desde dónde partes y hacia dónde quieres viajar
       </p>

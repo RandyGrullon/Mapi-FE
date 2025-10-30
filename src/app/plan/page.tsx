@@ -10,7 +10,7 @@ import { useWizard } from "@/components/wizard/WizardProvider";
 import { useNavigation } from "@/components/navigation/NavigationContext";
 
 const PlanPageLayout = () => {
-  const { travelInfo, resetWizard } = useWizard();
+  const { travelInfo, resetWizard, allStepsCompleted } = useWizard();
   const { navigateToHome, navigateToWizard } = useNavigation();
 
   return (
@@ -18,6 +18,7 @@ const PlanPageLayout = () => {
       <Sidebar />
 
       <div className="flex-1 flex flex-col">
+        {!allStepsCompleted && (
         <header className="bg-white border-b border-gray-200 px-4 md:px-6 py-3 md:py-4 shadow-sm">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 md:gap-3">
@@ -78,6 +79,7 @@ const PlanPageLayout = () => {
 
           <WizardSteps />
         </header>
+        )}
 
         <WizardContent />
       </div>

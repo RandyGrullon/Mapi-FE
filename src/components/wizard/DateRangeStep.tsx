@@ -45,7 +45,7 @@ export const DateRangeStep = ({
   const canSubmit = startDate && endDate && !isLoading;
 
   return (
-    <div className="pl-14 space-y-4">
+    <div className="space-y-4">
       <p className="text-sm text-gray-500 italic">
         Selecciona las fechas de tu viaje
       </p>

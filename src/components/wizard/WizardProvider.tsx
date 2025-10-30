@@ -56,6 +56,7 @@ interface WizardContextType {
   setUserInput: (input: string) => void;
   travelInfo: TravelInfo;
   currentDraftId: string | null;
+  allStepsCompleted: boolean;
 }
 
 const WizardContext = createContext<WizardContextType | undefined>(undefined);
@@ -445,6 +446,7 @@ export const WizardProvider = ({ children }: { children: ReactNode }) => {
         setUserInput,
         travelInfo,
         currentDraftId,
+        allStepsCompleted: steps.every((step) => step.completed),
       }}
     >
       {children}

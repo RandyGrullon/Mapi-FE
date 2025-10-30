@@ -52,7 +52,7 @@ export const StepForm = ({
   };
 
   return (
-    <div className="pl-14 space-y-4">
+    <div className="space-y-4">
       {/* Indicador de modo edición */}
       {step.completed && (
         <div className="flex items-center gap-2 text-sm text-orange-600 bg-orange-50 px-3 py-2 rounded-lg border border-orange-200 mb-2">
@@ -114,6 +114,11 @@ export const StepForm = ({
             }
             value={userInput}
             onChange={(e) => setUserInput(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && !userInput.trim()) {
+                e.preventDefault();
+              }
+            }}
             placeholder={
               step.inputType === "select"
                 ? "O escribe tu propia respuesta..."

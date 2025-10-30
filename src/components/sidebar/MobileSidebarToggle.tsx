@@ -15,19 +15,23 @@ export const MobileSidebarToggle = ({
       className="md:hidden fixed bottom-6 right-6 z-50 bg-black text-white p-4 rounded-full shadow-xl"
       aria-label="Toggle sidebar"
     >
-      <svg
-        className="w-6 h-6"
-        fill="none"
-        stroke="currentColor"
-        viewBox="0 0 24 24"
-      >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth={2}
-          d={isOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"}
-        />
-      </svg>
+      <div className="w-6 h-6 relative">
+        <span
+          className={`absolute block h-0.5 w-6 bg-white transform transition-all duration-300 ease-in-out top-1 origin-center ${
+            isOpen ? 'rotate-45 translate-y-2' : ''
+          }`}
+        ></span>
+        <span
+          className={`absolute block h-0.5 w-6 bg-white transform transition-all duration-300 ease-in-out top-2.5 origin-center ${
+            isOpen ? 'opacity-0' : 'opacity-100'
+          }`}
+        ></span>
+        <span
+          className={`absolute block h-0.5 w-6 bg-white transform transition-all duration-300 ease-in-out top-4 origin-center ${
+            isOpen ? '-rotate-45 -translate-y-1' : ''
+          }`}
+        ></span>
+      </div>
     </button>
   );
 };
