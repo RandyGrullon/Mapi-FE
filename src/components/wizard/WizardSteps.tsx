@@ -161,13 +161,6 @@ export const WizardSteps = () => {
             )}
           </div>
         </div>
-
-        {/* Mensaje motivacional */}
-        {progress >= 50 && progress < 100 && (
-          <p className="text-xs text-center text-gray-500 mt-2 animate-fade-in">
-            ¡Vas por buen camino! 🚀
-          </p>
-        )}
       </div>
 
       {/* Estilos para las animaciones */}
