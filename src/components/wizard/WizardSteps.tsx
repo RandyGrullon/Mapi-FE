@@ -168,11 +168,6 @@ export const WizardSteps = () => {
             ¡Vas por buen camino! 🚀
           </p>
         )}
-        {progress >= 100 && (
-          <p className="text-xs text-center text-green-600 mt-2 animate-fade-in font-medium">
-            ¡Excelente! Tu plan está listo 🎉
-          </p>
-        )}
       </div>
 
       {/* Estilos para las animaciones */}

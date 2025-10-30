@@ -2,7 +2,9 @@
 
 import { useState, useEffect } from "react";
 import { ProgressBar } from "../ui/ProgressIndicator";
-import { DatePicker } from "../ui/DatePicker";
+import { Calendar } from "../ui/calendar";
+import { format } from "date-fns";
+import { es } from "date-fns/locale";
 
 interface DateRangeStepProps {
   onSubmit: (startDate: string, endDate: string) => void;
@@ -19,30 +21,33 @@ export const DateRangeStep = ({
   initialStartDate = "",
   initialEndDate = "",
 }: DateRangeStepProps) => {
-  const [startDate, setStartDate] = useState<Date | undefined>(
-    initialStartDate ? new Date(initialStartDate) : undefined
-  );
-  const [endDate, setEndDate] = useState<Date | undefined>(
-    initialEndDate ? new Date(initialEndDate) : undefined
-  );
+  const [dateRange, setDateRange] = useState<{
+    from: Date | undefined;
+    to?: Date | undefined;
+  }>({
+    from: initialStartDate ? new Date(initialStartDate) : undefined,
+    to: initialEndDate ? new Date(initialEndDate) : undefined,
+  });
 
   // Actualizar los estados cuando cambien los valores iniciales
   useEffect(() => {
-    setStartDate(initialStartDate ? new Date(initialStartDate) : undefined);
-    setEndDate(initialEndDate ? new Date(initialEndDate) : undefined);
+    setDateRange({
+      from: initialStartDate ? new Date(initialStartDate) : undefined,
+      to: initialEndDate ? new Date(initialEndDate) : undefined,
+    });
   }, [initialStartDate, initialEndDate]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (startDate && endDate && !isLoading) {
+    if (dateRange.from && dateRange.to && !isLoading) {
       onSubmit(
-        startDate.toISOString().split("T")[0],
-        endDate.toISOString().split("T")[0]
+        dateRange.from.toISOString().split("T")[0],
+        dateRange.to.toISOString().split("T")[0]
       );
     }
   };
 
-  const canSubmit = startDate && endDate && !isLoading;
+  const canSubmit = dateRange.from && dateRange.to && !isLoading;
 
   return (
     <div className="pl-14 space-y-4">
@@ -51,58 +56,35 @@ export const DateRangeStep = ({
       </p>
 
       <form onSubmit={handleSubmit}>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-          {/* Card Fecha de Inicio */}
-          <div className="bg-gray-50 border border-gray-200 rounded-lg p-5 hover:border-gray-300 hover:shadow-sm transition-all duration-300">
-            <div className="flex items-center gap-2 mb-3">
-              <div className="w-8 h-8 bg-blue-200 text-blue-600 rounded-full flex items-center justify-center">
-                <svg
-                  className="w-4 h-4"
-                  fill="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
-                </svg>
-              </div>
-              <h4 className="font-bold text-gray-800">Fecha de Salida</h4>
+        <div className="bg-gray-50 border border-gray-200 rounded-lg p-5 hover:border-gray-300 hover:shadow-sm transition-all duration-300">
+          <div className="flex items-center gap-2 mb-3">
+            <div className="w-8 h-8 bg-blue-200 text-blue-600 rounded-full flex items-center justify-center">
+              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
+              </svg>
             </div>
-            <DatePicker
-              date={startDate}
-              onDateChange={setStartDate}
-              placeholder="Selecciona fecha de salida"
-              className="w-full"
-              disabled={(date) =>
-                date < new Date(new Date().setHours(0, 0, 0, 0))
-              }
-            />
+            <h4 className="font-bold text-gray-800">
+              Selecciona el rango de fechas
+            </h4>
           </div>
-
-          {/* Card Fecha de Regreso */}
-          <div className="bg-gray-50 border border-gray-200 rounded-lg p-5 hover:border-gray-300 hover:shadow-sm transition-all duration-300">
-            <div className="flex items-center gap-2 mb-3">
-              <div className="w-8 h-8 bg-green-200 text-green-600 rounded-full flex items-center justify-center">
-                <svg
-                  className="w-4 h-4"
-                  fill="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
-                </svg>
-              </div>
-              <h4 className="font-bold text-gray-800">Fecha de Regreso</h4>
-            </div>
-            <DatePicker
-              date={endDate}
-              onDateChange={setEndDate}
-              placeholder="Selecciona fecha de regreso"
-              className="w-full"
-              disabled={(date) =>
-                startDate
-                  ? date < startDate
-                  : date < new Date(new Date().setHours(0, 0, 0, 0))
-              }
-            />
-          </div>
+          <Calendar
+            mode="range"
+            selected={dateRange}
+            onSelect={(range) =>
+              setDateRange(range || { from: undefined, to: undefined })
+            }
+            disabled={(date) =>
+              date < new Date(new Date().setHours(0, 0, 0, 0))
+            }
+            locale={es}
+            numberOfMonths={2}
+          />
+          {dateRange.from && dateRange.to && (
+            <p className="mt-2 text-sm text-gray-600">
+              Desde {format(dateRange.from, "PPP", { locale: es })} hasta{" "}
+              {format(dateRange.to, "PPP", { locale: es })}
+            </p>
+          )}
         </div>
 
         {/* Botón de envío */}
