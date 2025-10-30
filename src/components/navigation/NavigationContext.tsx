@@ -21,6 +21,7 @@ interface NavigationContextType {
   navigateToHome: () => void;
   navigateToWizard: () => void;
   navigateToDrafts: () => void;
+  navigateToLogin: () => void;
   navigateToTripDetail: (trip: CompletedTrip) => void;
   navigateToPackages: (info: TravelInfo) => void;
 }
@@ -86,6 +87,12 @@ export const NavigationProvider = ({ children }: { children: ReactNode }) => {
     setTravelInfo(null);
   };
 
+  const navigateToLogin = () => {
+    router.push("/login");
+    setSelectedTrip(null);
+    setTravelInfo(null);
+  };
+
   const navigateToTripDetail = (trip: CompletedTrip) => {
     router.push(`/trip/${trip.id}`);
     setSelectedTrip(trip);
@@ -105,6 +112,7 @@ export const NavigationProvider = ({ children }: { children: ReactNode }) => {
         navigateToHome,
         navigateToWizard,
         navigateToDrafts,
+        navigateToLogin,
         navigateToTripDetail,
         navigateToPackages,
       }}

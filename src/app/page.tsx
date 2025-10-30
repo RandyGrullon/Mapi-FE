@@ -6,10 +6,10 @@ import { SidebarProvider } from "@/components/sidebar/SidebarContext";
 import { useNavigation } from "@/components/navigation/NavigationContext";
 
 const HomePage = () => {
-  const { navigateToWizard } = useNavigation();
+  const { navigateToLogin } = useNavigation();
 
   return (
-    <div className="h-screen bg-gray-50 overflow-hidden">
+    <div className="h-screen bg-gray-50">
       <div className="overflow-y-auto overflow-x-hidden">
         {/* Hero Section */}
         <section className="bg-black text-white py-20 px-6">
@@ -24,7 +24,7 @@ const HomePage = () => {
             </div>
 
             <button
-              onClick={navigateToWizard}
+              onClick={navigateToLogin}
               className="bg-white text-black px-8 py-4 rounded-full font-bold text-lg hover:bg-gray-100 transition-all duration-300 transform hover:scale-105 shadow-xl"
             >
               Comenzar a Planificar
@@ -178,7 +178,7 @@ const HomePage = () => {
               aventuras
             </p>
             <button
-              onClick={navigateToWizard}
+              onClick={navigateToLogin}
               className="bg-white text-gray-800 px-8 py-4 rounded-full font-bold text-lg hover:bg-gray-100 transition-all duration-300 transform hover:scale-105 shadow-xl"
             >
               Comenzar Ahora - ¡Es Gratis!
