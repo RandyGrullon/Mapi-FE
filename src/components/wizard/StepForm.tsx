@@ -115,7 +115,7 @@ export const StepForm = ({
             value={userInput}
             onChange={(e) => setUserInput(e.target.value)}
             onKeyDown={(e) => {
-              if (e.key === 'Enter' && !userInput.trim()) {
+              if (e.key === "Enter" && !userInput.trim()) {
                 e.preventDefault();
               }
             }}
