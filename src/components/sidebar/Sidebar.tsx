@@ -1,16 +1,15 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { usePathname } from "next/navigation";
-import { useWizard } from "../wizard/WizardProvider";
+import { usePathname, useRouter } from "next/navigation";
 import { useSidebar } from "./SidebarContext";
 import { DemoTripsInitializer } from "../data/DemoTripsInitializer";
-import { useNavigation } from "../navigation/NavigationContext";
 import { ConfirmModal } from "../modals/ConfirmModal";
 import { EditTripNameModal } from "../modals/EditTripNameModal";
 import { ShareModal } from "../modals/ShareModal";
 import { Toast, ToastType } from "../ui/Toast";
 import { useDrafts } from "../drafts/useDrafts";
+import { DraftManager } from "../drafts/DraftManager";
 import { useTrips } from "../trips/useTrips";
 import { useSidebarState } from "./useSidebarState";
 import { DraftsSection } from "../drafts/DraftsSection";
@@ -19,6 +18,7 @@ import { SidebarHeader } from "./SidebarHeader";
 import { SidebarFooter } from "./SidebarFooter";
 import { MobileSidebarToggle } from "./MobileSidebarToggle";
 import { formatDate } from "../data/utils";
+import { useWizardStore } from "@/stores/wizardStore";
 
 export const Sidebar = () => {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -50,8 +50,9 @@ export const Sidebar = () => {
     closeMobileSidebar,
   } = useSidebarState();
 
-  const { resetWizard, loadDraft, currentDraftId } = useWizard();
-  const { navigateToTripDetail, navigateToWizard } = useNavigation();
+  const { resetWizard, currentDraftId, setCurrentDraftId, loadDraftState } =
+    useWizardStore();
+  const router = useRouter();
   const pathname = usePathname();
 
   // Determinar el viaje seleccionado basado en la URL
@@ -71,16 +72,26 @@ export const Sidebar = () => {
 
   const handleNewWizard = () => {
     resetWizard();
-    navigateToWizard();
+    router.push("/plan");
     closeMobileSidebar();
   };
 
   const handleLoadDraft = (draftId: string) => {
-    loadDraft(draftId);
-    // Si no estamos en el wizard, navegar al wizard
-    if (pathname !== "/plan") {
-      navigateToWizard();
+    // Cargar el draft
+    const draft = DraftManager.getDraft(draftId);
+    if (draft) {
+      // Establecer como draft actual en el DraftManager
+      DraftManager.setCurrentDraftId(draftId);
+
+      // Establecer en el store de Zustand
+      setCurrentDraftId(draftId);
+
+      // TODO: Aquí necesitarás cargar el estado del draft al wizard
+      // Por ahora solo navegamos
     }
+
+    // Navegar al wizard
+    router.push("/plan");
     closeMobileSidebar();
   };
 
@@ -93,10 +104,6 @@ export const Sidebar = () => {
   const confirmDeleteDraft = () => {
     if (draftToDelete) {
       deleteDraft(draftToDelete);
-      // Si el borrador eliminado es el que se está editando actualmente, resetear el wizard
-      if (draftToDelete === currentDraftId) {
-        resetWizard();
-      }
       setDraftToDelete(null);
     }
     setIsDeleteModalOpen(false);
@@ -228,7 +235,7 @@ export const Sidebar = () => {
             <TripsSection
               trips={trips}
               selectedTripId={selectedTripId}
-              onNavigateToTripDetail={navigateToTripDetail}
+              onNavigateToTripDetail={(trip) => router.push(`/trip/${trip.id}`)}
               onEditTripName={handleEditTripName}
               onShareTrip={handleShareTrip}
               onDeleteTrip={handleDeleteTrip}

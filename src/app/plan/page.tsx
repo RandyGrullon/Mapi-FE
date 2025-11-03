@@ -1,24 +1,19 @@
 "use client";
 
 import { NavigationProvider } from "@/components/navigation/NavigationContext";
-import { WizardProvider } from "@/components/wizard/WizardProvider";
 import { SidebarProvider } from "@/components/sidebar/SidebarContext";
 import { Sidebar } from "@/components/sidebar/Sidebar";
-import { WizardSteps } from "@/components/wizard/WizardSteps";
-import { WizardContent } from "@/components/wizard/WizardContent";
-import { useWizard } from "@/components/wizard/WizardProvider";
-import { useNavigation } from "@/components/navigation/NavigationContext";
+import { ModularWizard } from "@/components/wizard/ModularWizard";
+import { useWizardStore } from "@/stores/wizardStore";
 
 const PlanPageLayout = () => {
-  const { travelInfo, resetWizard, allStepsCompleted } = useWizard();
-  const { navigateToHome, navigateToWizard } = useNavigation();
+  const { resetWizard, completed, selectedServices } = useWizardStore();
 
   return (
     <div className="flex h-screen bg-gray-50 overflow-hidden">
       <Sidebar />
 
       <div className="flex-1 flex flex-col">
-        {!allStepsCompleted && (
         <header className="bg-white border-b border-gray-200 px-4 md:px-6 py-3 md:py-4 shadow-sm">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 md:gap-3">
@@ -31,57 +26,45 @@ const PlanPageLayout = () => {
                 <h1 className="text-lg md:text-2xl font-bold">
                   Planificador de Viajes
                 </h1>
-                {travelInfo.destination && (
+                {selectedServices.length > 0 && (
                   <p className="text-xs text-gray-500">
-                    {travelInfo.destination}
-                    {Number(travelInfo.travelers) > 0
-                      ? ` • ${travelInfo.travelers} ${
-                          Number(travelInfo.travelers) === 1
-                            ? "viajero"
-                            : "viajeros"
-                        }`
-                      : ""}
+                    {selectedServices.length}{" "}
+                    {selectedServices.length === 1 ? "servicio" : "servicios"}{" "}
+                    seleccionado{selectedServices.length === 1 ? "" : "s"}
                   </p>
                 )}
               </div>
             </div>
 
             <div className="flex items-center gap-2 md:gap-4">
-              <button
-                onClick={() => {
-                  resetWizard();
-                  navigateToWizard();
-                }}
-                className="p-2 rounded-lg hover:bg-gray-100 transition-colors text-gray-500 hover:text-gray-700"
-                title="Nuevo viaje"
-              >
-                <svg
-                  className="w-5 h-5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
+              {selectedServices.length > 0 && (
+                <button
+                  onClick={() => {
+                    resetWizard();
+                  }}
+                  className="p-2 rounded-lg hover:bg-gray-100 transition-colors text-gray-500 hover:text-gray-700"
+                  title="Nuevo viaje"
                 >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-                  />
-                </svg>
-              </button>
-
-              {/* <button className="px-3 py-1.5 md:px-4 md:py-2 bg-black text-white rounded-lg hover:bg-black/90 transition-all duration-200 text-sm flex items-center gap-1.5">
-                <span>🔍</span>
-                <span>Explorar</span>
-              </button> */}
+                  <svg
+                    className="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                    />
+                  </svg>
+                </button>
+              )}
             </div>
           </div>
-
-          <WizardSteps />
         </header>
-        )}
 
-        <WizardContent />
+        <ModularWizard />
       </div>
     </div>
   );
@@ -90,11 +73,9 @@ const PlanPageLayout = () => {
 export default function PlanPage() {
   return (
     <NavigationProvider>
-      <WizardProvider>
-        <SidebarProvider>
-          <PlanPageLayout />
-        </SidebarProvider>
-      </WizardProvider>
+      <SidebarProvider>
+        <PlanPageLayout />
+      </SidebarProvider>
     </NavigationProvider>
   );
 }
