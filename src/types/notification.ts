@@ -3,7 +3,10 @@
  * Tipos para el sistema de notificaciones de viajes
  */
 
-export type NotificationType = "join_request" | "join_accepted" | "join_rejected";
+export type NotificationType =
+  | "join_request"
+  | "join_accepted"
+  | "join_rejected";
 
 export interface TripNotification {
   id: string;

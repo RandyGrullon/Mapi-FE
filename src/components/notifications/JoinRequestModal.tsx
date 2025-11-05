@@ -26,7 +26,7 @@ export const JoinRequestModal = ({
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  
+
   const addJoinRequest = useNotificationStore((state) => state.addJoinRequest);
 
   if (!isOpen) return null;
@@ -48,7 +48,7 @@ export const JoinRequestModal = ({
       setIsSubmitting(false);
       onSuccess?.();
       onClose();
-      
+
       // Reset form
       setName("");
       setEmail("");
@@ -126,7 +126,7 @@ export const JoinRequestModal = ({
                 </p>
               </div>
             </div>
-            
+
             <div className="grid grid-cols-2 gap-4 text-sm">
               <div>
                 <p className="text-gray-500">Viajeros</p>
@@ -206,10 +206,7 @@ export const JoinRequestModal = ({
               >
                 {isSubmitting ? (
                   <span className="flex items-center justify-center gap-2">
-                    <svg
-                      className="animate-spin h-5 w-5"
-                      viewBox="0 0 24 24"
-                    >
+                    <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
                       <circle
                         className="opacity-25"
                         cx="12"
@@ -251,7 +248,8 @@ export const JoinRequestModal = ({
                 />
               </svg>
               <p className="text-sm text-blue-800">
-                El organizador recibirá una notificación con tu solicitud. Te avisaremos cuando sea aceptada.
+                El organizador recibirá una notificación con tu solicitud. Te
+                avisaremos cuando sea aceptada.
               </p>
             </div>
           </div>

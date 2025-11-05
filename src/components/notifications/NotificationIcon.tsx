@@ -16,7 +16,7 @@ export const NotificationIcon = () => {
 
   useEffect(() => {
     setUnreadCount(getUnreadCount());
-    
+
     // Actualizar contador cada segundo
     const interval = setInterval(() => {
       setUnreadCount(getUnreadCount());
@@ -64,7 +64,7 @@ export const NotificationIcon = () => {
             className="fixed inset-0 z-40 md:hidden"
             onClick={() => setIsOpen(false)}
           />
-          
+
           {/* Panel */}
           <div className="fixed md:absolute right-0 md:right-0 top-16 md:top-auto md:mt-2 z-50 w-full md:w-auto px-4 md:px-0">
             <NotificationPanel onClose={() => setIsOpen(false)} />

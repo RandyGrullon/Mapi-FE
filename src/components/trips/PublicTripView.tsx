@@ -6,7 +6,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { CompletedTrip, CompletedTripsManager } from "@/components/trips/CompletedTripsManager";
+import {
+  CompletedTrip,
+  CompletedTripsManager,
+} from "@/components/trips/CompletedTripsManager";
 import { JoinRequestModal } from "@/components/notifications/JoinRequestModal";
 import { Toast, ToastType } from "@/components/ui/Toast";
 
@@ -30,7 +33,9 @@ export const PublicTripView = ({ shareToken }: PublicTripViewProps) => {
   useEffect(() => {
     // Buscar el viaje por shareToken
     const trips = CompletedTripsManager.getAllTrips();
-    const foundTrip = trips.find((t) => t.shareToken === shareToken || t.id === shareToken);
+    const foundTrip = trips.find(
+      (t) => t.shareToken === shareToken || t.id === shareToken
+    );
     setTrip(foundTrip || null);
   }, [shareToken]);
 
@@ -59,8 +64,12 @@ export const PublicTripView = ({ shareToken }: PublicTripViewProps) => {
               d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
             />
           </svg>
-          <p className="text-xl font-semibold text-gray-700">Viaje no encontrado</p>
-          <p className="text-gray-500 mt-2">El link puede haber expirado o ser inválido</p>
+          <p className="text-xl font-semibold text-gray-700">
+            Viaje no encontrado
+          </p>
+          <p className="text-gray-500 mt-2">
+            El link puede haber expirado o ser inválido
+          </p>
         </div>
       </div>
     );
@@ -84,7 +93,7 @@ export const PublicTripView = ({ shareToken }: PublicTripViewProps) => {
                 </p>
               </div>
             </div>
-            
+
             {spotsAvailable > 0 && (
               <button
                 onClick={() => setIsJoinModalOpen(true)}
@@ -147,20 +156,24 @@ export const PublicTripView = ({ shareToken }: PublicTripViewProps) => {
               <div>
                 <p className="text-sm font-medium text-gray-700">Ida</p>
                 <p className="text-gray-900">
-                  {trip.flights.outbound.airline} {trip.flights.outbound.flightNumber}
+                  {trip.flights.outbound.airline}{" "}
+                  {trip.flights.outbound.flightNumber}
                 </p>
                 <p className="text-sm text-gray-500">
-                  {trip.flights.outbound.departureTime} - {trip.flights.outbound.arrivalTime}
+                  {trip.flights.outbound.departureTime} -{" "}
+                  {trip.flights.outbound.arrivalTime}
                 </p>
               </div>
               {trip.flights.return && (
                 <div>
                   <p className="text-sm font-medium text-gray-700">Regreso</p>
                   <p className="text-gray-900">
-                    {trip.flights.return.airline} {trip.flights.return.flightNumber}
+                    {trip.flights.return.airline}{" "}
+                    {trip.flights.return.flightNumber}
                   </p>
                   <p className="text-sm text-gray-500">
-                    {trip.flights.return.departureTime} - {trip.flights.return.arrivalTime}
+                    {trip.flights.return.departureTime} -{" "}
+                    {trip.flights.return.arrivalTime}
                   </p>
                 </div>
               )}
@@ -173,9 +186,15 @@ export const PublicTripView = ({ shareToken }: PublicTripViewProps) => {
               <span>🏨</span> Alojamiento
             </h3>
             <div>
-              <p className="text-gray-900 font-medium">{trip.hotel.hotelName}</p>
-              <p className="text-sm text-gray-500 mt-1">{trip.hotel.roomType}</p>
-              <p className="text-sm text-gray-500">{trip.hotel.nights} noches</p>
+              <p className="text-gray-900 font-medium">
+                {trip.hotel.hotelName}
+              </p>
+              <p className="text-sm text-gray-500 mt-1">
+                {trip.hotel.roomType}
+              </p>
+              <p className="text-sm text-gray-500">
+                {trip.hotel.nights} noches
+              </p>
               <p className="text-gray-600 mt-2">{trip.hotel.address}</p>
             </div>
           </div>
@@ -194,7 +213,12 @@ export const PublicTripView = ({ shareToken }: PublicTripViewProps) => {
                   className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg"
                 >
                   <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-semibold">
-                    {participant.name.split(" ").map(n => n[0]).join("").toUpperCase().substring(0, 2)}
+                    {participant.name
+                      .split(" ")
+                      .map((n) => n[0])
+                      .join("")
+                      .toUpperCase()
+                      .substring(0, 2)}
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="font-medium text-gray-900 truncate">
@@ -219,7 +243,10 @@ export const PublicTripView = ({ shareToken }: PublicTripViewProps) => {
         trip={trip}
         onClose={() => setIsJoinModalOpen(false)}
         onSuccess={() => {
-          showToast("¡Solicitud enviada! El organizador recibirá tu petición.", "success");
+          showToast(
+            "¡Solicitud enviada! El organizador recibirá tu petición.",
+            "success"
+          );
         }}
       />
 

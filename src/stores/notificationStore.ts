@@ -9,12 +9,16 @@ import { TripNotification, JoinRequest } from "@/types/notification";
 interface NotificationState {
   notifications: TripNotification[];
   joinRequests: JoinRequest[];
-  addNotification: (notification: Omit<TripNotification, "id" | "createdAt">) => void;
+  addNotification: (
+    notification: Omit<TripNotification, "id" | "createdAt">
+  ) => void;
   markAsRead: (notificationId: string) => void;
   markAllAsRead: () => void;
   deleteNotification: (notificationId: string) => void;
   getUnreadCount: () => number;
-  addJoinRequest: (request: Omit<JoinRequest, "id" | "createdAt" | "status">) => string;
+  addJoinRequest: (
+    request: Omit<JoinRequest, "id" | "createdAt" | "status">
+  ) => string;
   approveJoinRequest: (requestId: string) => JoinRequest | null;
   rejectJoinRequest: (requestId: string) => void;
   getPendingRequests: (tripId: string) => JoinRequest[];
@@ -85,7 +89,7 @@ export const useNotificationStore = create<NotificationState>((set, get) => ({
     set((state) => ({
       joinRequests: [newRequest, ...state.joinRequests],
     }));
-    
+
     // Agregar notificación para el owner del viaje
     get().addNotification({
       tripId: request.tripId,

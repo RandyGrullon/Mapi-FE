@@ -7,9 +7,11 @@
 
 import { useNotificationStore } from "@/stores/notificationStore";
 import { TripNotification } from "@/types/notification";
-import { JoinRequestModal } from "./JoinRequestModal";
 import { useState } from "react";
-import { CompletedTripsManager, TripParticipant } from "../trips/CompletedTripsManager";
+import {
+  CompletedTripsManager,
+  TripParticipant,
+} from "../trips/CompletedTripsManager";
 
 interface NotificationPanelProps {
   onClose: () => void;
