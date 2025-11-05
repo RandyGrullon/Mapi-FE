@@ -71,7 +71,14 @@ export const Sidebar = () => {
   }, []);
 
   const handleNewWizard = () => {
+    // Limpiar el borrador actual (sin eliminarlo, solo desvincularlo)
+    DraftManager.clearCurrentDraft();
+    setCurrentDraftId(null);
+    
+    // Resetear el wizard para empezar desde cero
     resetWizard();
+    
+    // Navegar al wizard
     router.push("/plan");
     closeMobileSidebar();
   };

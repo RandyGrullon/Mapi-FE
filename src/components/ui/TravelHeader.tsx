@@ -20,6 +20,7 @@ export const TravelHeader = ({
     { id: "packages" as TabType, label: "Paquetes", icon: "📦" },
     { id: "flights" as TabType, label: "Vuelos", icon: "✈️" },
     { id: "hotels" as TabType, label: "Hoteles", icon: "🏨" },
+    { id: "cars" as TabType, label: "Autos", icon: "🚗" },
     { id: "activities" as TabType, label: "Actividades", icon: "🎯" },
   ];
 

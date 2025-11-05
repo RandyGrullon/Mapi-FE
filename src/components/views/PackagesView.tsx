@@ -66,6 +66,25 @@ export const PackagesView = ({ packages, onSelect }: PackagesViewProps) => {
                     </div>
                   </div>
 
+                  {pkg.carRental && (
+                    <div className="flex items-start gap-3 p-4 bg-white/5 rounded-lg border border-white/10">
+                      <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center flex-shrink-0">
+                        <span className="text-xl">🚗</span>
+                      </div>
+                      <div>
+                        <p className="font-semibold mb-1 text-sm">
+                          {pkg.carRental.carModel}
+                        </p>
+                        <p className="text-sm text-gray-300">
+                          {pkg.carRental.company} • ⭐ {pkg.carRental.rating}/5
+                        </p>
+                        <p className="text-xs text-gray-400">
+                          {pkg.carRental.totalDays} días • {pkg.carRental.transmission === "automatic" ? "Automático" : "Manual"}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+
                   <div className="flex items-start gap-3 p-4 bg-white/5 rounded-lg border border-white/10">
                     <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center flex-shrink-0">
                       <span className="text-xl">🎯</span>
@@ -195,6 +214,20 @@ export const PackagesView = ({ packages, onSelect }: PackagesViewProps) => {
                       </p>
                     </div>
                   </div>
+
+                  {pkg.carRental && (
+                    <div className="flex items-center gap-3 text-sm p-3 bg-indigo-50 rounded-lg">
+                      <span className="text-lg">🚗</span>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-semibold text-gray-900 text-sm truncate">
+                          {pkg.carRental.carModel}
+                        </p>
+                        <p className="text-xs text-gray-500">
+                          {pkg.carRental.company} • {pkg.carRental.totalDays} días
+                        </p>
+                      </div>
+                    </div>
+                  )}
 
                   <div className="flex items-center gap-3 text-sm p-3 bg-gray-50 rounded-lg">
                     <span className="text-lg">🎯</span>

@@ -12,11 +12,13 @@ import { CustomPackageFooter } from "./CustomPackageFooter";
 import { PackagesView } from "../views/PackagesView";
 import { FlightsView } from "../views/FlightsView";
 import { HotelsView } from "../views/HotelsView";
+import { CarsView } from "../views/CarsView";
 import { ActivitiesView } from "../views/ActivitiesView";
 import {
   generatePackages,
   generateFlights,
   generateHotels,
+  generateCars,
   generateActivities,
   TravelPackage,
 } from "../data/travel-data";
@@ -32,9 +34,11 @@ export const TravelPackagesPage = ({ travelInfo }: TravelPackagesPageProps) => {
     setSelectedTab,
     selectedFlight,
     selectedHotel,
+    selectedCar,
     selectedActivities,
     handleSelectFlight,
     handleSelectHotel,
+    handleSelectCar,
     handleSelectActivity,
     hasValidSelection,
   } = useTravelSelections();
@@ -61,6 +65,7 @@ export const TravelPackagesPage = ({ travelInfo }: TravelPackagesPageProps) => {
   const packages = generatePackages(travelInfo);
   const flights = generateFlights(travelInfo);
   const hotels = generateHotels(travelInfo);
+  const cars = generateCars(travelInfo);
   const activities = generateActivities(travelInfo);
 
   const handleSelectPackage = (pkg: TravelPackage) => {
@@ -91,6 +96,7 @@ export const TravelPackagesPage = ({ travelInfo }: TravelPackagesPageProps) => {
 
     const flight = flights.find((f) => f.id === selectedFlight);
     const hotel = hotels.find((h) => h.id === selectedHotel);
+    const car = selectedCar ? cars.find((c) => c.id === selectedCar) : undefined;
     const selectedActivitiesList = activities.filter((a) =>
       selectedActivities.includes(a.id)
     );
@@ -156,6 +162,14 @@ export const TravelPackagesPage = ({ travelInfo }: TravelPackagesPageProps) => {
               nights={parseInt(travelInfo.duration) || 5}
             />
           )}
+          {selectedTab === "cars" && (
+            <CarsView
+              cars={cars}
+              selected={selectedCar}
+              onToggle={handleSelectCar}
+              days={parseInt(travelInfo.duration) || 5}
+            />
+          )}
           {selectedTab === "activities" && (
             <ActivitiesView
               activities={activities}
@@ -171,6 +185,7 @@ export const TravelPackagesPage = ({ travelInfo }: TravelPackagesPageProps) => {
         <CustomPackageFooter
           selectedFlight={selectedFlight}
           selectedHotel={selectedHotel}
+          selectedCar={selectedCar}
           selectedActivities={selectedActivities}
           onCreatePackage={createCustomPackage}
         />

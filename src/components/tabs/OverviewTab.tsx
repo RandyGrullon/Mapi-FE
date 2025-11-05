@@ -7,7 +7,7 @@ interface OverviewTabProps {
   trip: CompletedTrip;
   openGoogleMaps: (location: string) => void;
   setActiveTab: (
-    tab: "overview" | "flights" | "hotel" | "activities" | "budget"
+    tab: "overview" | "flights" | "hotel" | "car" | "activities" | "budget"
   ) => void;
 }
 
@@ -61,6 +61,28 @@ export const OverviewTab = ({
             </span>
           </div>
         </CardButton>
+
+        {trip.carRental && (
+          <CardButton
+            onClick={() => setActiveTab("car")}
+            icon="🚗"
+            title="Renta de Auto"
+            subtitle="Vehículo reservado"
+          >
+            <div className="flex justify-between items-center">
+              <span className="text-sm text-gray-600">Vehículo</span>
+              <span className="font-medium text-gray-900">
+                {trip.carRental.carType}
+              </span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-sm text-gray-600">Duración</span>
+              <span className="text-sm text-gray-900">
+                {trip.carRental.totalDays} días
+              </span>
+            </div>
+          </CardButton>
+        )}
 
         <CardButton
           onClick={() => setActiveTab("activities")}
@@ -117,7 +139,7 @@ export const OverviewTab = ({
         </div>
 
         <div className="p-6">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+          <div className={`grid grid-cols-2 ${trip.carRental ? 'md:grid-cols-5' : 'md:grid-cols-4'} gap-6`}>
             <div className="text-center">
               <div className="flex items-center justify-center mb-2">
                 <span className="text-2xl mr-2">✈️</span>
@@ -139,6 +161,20 @@ export const OverviewTab = ({
                 ${trip.budget.hotel.toLocaleString()}
               </p>
             </div>
+
+            {trip.carRental && trip.budget.carRental > 0 && (
+              <div className="text-center">
+                <div className="flex items-center justify-center mb-2">
+                  <span className="text-2xl mr-2">🚗</span>
+                  <span className="text-sm font-medium text-gray-900">
+                    Auto
+                  </span>
+                </div>
+                <p className="text-xl font-bold text-gray-900">
+                  ${trip.budget.carRental.toLocaleString()}
+                </p>
+              </div>
+            )}
 
             <div className="text-center">
               <div className="flex items-center justify-center mb-2">

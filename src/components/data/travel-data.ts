@@ -1,6 +1,6 @@
 "use client";
 
-import { TravelInfo } from "./WizardProvider";
+import { TravelInfo } from "../wizard/WizardProvider";
 
 export interface Flight {
   id: string;
@@ -35,12 +35,28 @@ export interface Activity {
   included: string[];
 }
 
+export interface CarRental {
+  id: string;
+  company: string;
+  carType: string;
+  carModel: string;
+  transmission: "automatic" | "manual";
+  seats: number;
+  pricePerDay: number;
+  totalDays: number;
+  totalPrice: number;
+  features: string[];
+  rating: number;
+  imageUrl?: string;
+}
+
 export interface TravelPackage {
   id: string;
   name: string;
   description: string;
   flight: Flight;
   hotel: Hotel;
+  carRental?: CarRental;
   activities: Activity[];
   totalPrice: number;
   savings: number;
@@ -50,6 +66,7 @@ export interface TravelPackage {
 export function generatePackages(travelInfo: TravelInfo): TravelPackage[] {
   const flights = generateFlights(travelInfo);
   const hotels = generateHotels(travelInfo);
+  const cars = generateCars(travelInfo);
   const activities = generateActivities(travelInfo);
   const nights = parseInt(travelInfo.duration) || 5;
 
@@ -75,14 +92,16 @@ export function generatePackages(travelInfo: TravelInfo): TravelPackage[] {
       description: "La experiencia completa con servicios de primera clase",
       flight: flights[1],
       hotel: hotels[1],
+      carRental: cars[1],
       activities: activities.slice(1, 4),
       totalPrice:
         flights[1].price +
         hotels[1].pricePerNight * nights +
+        cars[1].totalPrice +
         activities[1].price +
         activities[2].price +
         activities[3].price,
-      savings: 350,
+      savings: 450,
       recommended: true,
     },
     {
@@ -91,14 +110,16 @@ export function generatePackages(travelInfo: TravelInfo): TravelPackage[] {
       description: "Para los amantes de la exploración y nuevas experiencias",
       flight: flights[2],
       hotel: hotels[2],
+      carRental: cars[2],
       activities: activities.slice(3, 6),
       totalPrice:
         flights[2].price +
         hotels[2].pricePerNight * nights +
+        cars[2].totalPrice +
         activities[3].price +
         activities[4].price +
         activities[5].price,
-      savings: 280,
+      savings: 380,
       recommended: false,
     },
   ];
@@ -238,6 +259,91 @@ export function generateActivities(travelInfo: TravelInfo): Activity[] {
       price: 95,
       rating: 4.9,
       included: ["Masaje", "Sauna", "Jacuzzi", "Té y snacks"],
+    },
+  ];
+}
+
+export function generateCars(travelInfo: TravelInfo): CarRental[] {
+  const days = parseInt(travelInfo.duration) || 5;
+  
+  return [
+    {
+      id: "car-1",
+      company: "Budget",
+      carType: "economy",
+      carModel: "Toyota Yaris o similar",
+      transmission: "automatic",
+      seats: 5,
+      pricePerDay: 35,
+      totalDays: days,
+      totalPrice: 35 * days,
+      features: ["A/C", "Bluetooth", "USB"],
+      rating: 4.3,
+    },
+    {
+      id: "car-2",
+      company: "Hertz",
+      carType: "suv",
+      carModel: "Nissan Kicks o similar",
+      transmission: "automatic",
+      seats: 5,
+      pricePerDay: 65,
+      totalDays: days,
+      totalPrice: 65 * days,
+      features: ["A/C", "GPS", "Bluetooth", "Cámara trasera"],
+      rating: 4.7,
+    },
+    {
+      id: "car-3",
+      company: "Avis",
+      carType: "suv",
+      carModel: "Jeep Compass o similar",
+      transmission: "automatic",
+      seats: 5,
+      pricePerDay: 75,
+      totalDays: days,
+      totalPrice: 75 * days,
+      features: ["A/C", "GPS", "4x4", "Bluetooth", "Apple CarPlay"],
+      rating: 4.8,
+    },
+    {
+      id: "car-4",
+      company: "Enterprise",
+      carType: "compact",
+      carModel: "Hyundai Accent o similar",
+      transmission: "automatic",
+      seats: 5,
+      pricePerDay: 40,
+      totalDays: days,
+      totalPrice: 40 * days,
+      features: ["A/C", "Bluetooth", "Control crucero"],
+      rating: 4.4,
+    },
+    {
+      id: "car-5",
+      company: "Sixt",
+      carType: "luxury",
+      carModel: "BMW Serie 3 o similar",
+      transmission: "automatic",
+      seats: 5,
+      pricePerDay: 120,
+      totalDays: days,
+      totalPrice: 120 * days,
+      features: ["A/C", "GPS", "Asientos de cuero", "Bluetooth", "Premium sound"],
+      rating: 4.9,
+    },
+    {
+      id: "car-6",
+      company: "Thrifty",
+      carType: "economy",
+      carModel: "Kia Rio o similar",
+      transmission: "manual",
+      seats: 5,
+      pricePerDay: 28,
+      totalDays: days,
+      totalPrice: 28 * days,
+      features: ["A/C", "Radio"],
+      rating: 4.2,
     },
   ];
 }

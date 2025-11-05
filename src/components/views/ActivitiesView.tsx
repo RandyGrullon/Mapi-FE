@@ -18,20 +18,20 @@ export const ActivitiesView = ({
       <div className="mb-6 p-4 bg-gray-50 border border-gray-200 rounded-lg">
         <p className="text-sm text-gray-700">
           <span className="font-semibold text-gray-900">
-            🎯 Selecciona hasta 3 actividades
+            🎯 Selecciona las actividades que desees (opcional)
           </span>{" "}
           para personalizar tu itinerario de viaje
         </p>
         {selected.length > 0 && (
           <p className="text-xs text-gray-600 mt-1.5 font-medium">
-            {selected.length}/3 actividades seleccionadas
+            {selected.length} actividad{selected.length !== 1 ? 'es' : ''} seleccionada{selected.length !== 1 ? 's' : ''}
           </p>
         )}
       </div>
       <div className="grid md:grid-cols-2 gap-6">
         {activities.map((activity) => {
           const isSelected = selected.includes(activity.id);
-          const canSelect = selected.length < 3 || isSelected;
+          const canSelect = true; // Permitir seleccionar todas
 
           return (
             <div
@@ -40,9 +40,7 @@ export const ActivitiesView = ({
               className={`p-6 rounded-xl border-2 transition-all cursor-pointer bg-white ${
                 isSelected
                   ? "border-gray-900 shadow-md ring-2 ring-gray-100"
-                  : canSelect
-                  ? "border-gray-200 hover:border-gray-400 hover:shadow-sm"
-                  : "border-gray-200 opacity-40 cursor-not-allowed"
+                  : "border-gray-200 hover:border-gray-400 hover:shadow-sm"
               }`}
             >
               <div className="flex items-start justify-between mb-4">

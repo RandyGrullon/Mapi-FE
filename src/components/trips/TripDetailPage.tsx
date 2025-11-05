@@ -13,6 +13,7 @@ import { FlightsTab } from "../tabs/FlightsTab";
 import { HotelTab } from "../tabs/HotelTab";
 import { ActivitiesTab } from "../tabs/ActivitiesTab";
 import { BudgetTab } from "../tabs/BudgetTab";
+import { CarTab } from "../tabs/CarTab";
 import { BackButton, ShareButton, TabButton } from "../buttons";
 
 interface TripDetailPageProps {
@@ -22,7 +23,7 @@ interface TripDetailPageProps {
 export const TripDetailPage = ({ trip }: TripDetailPageProps) => {
   const { navigateToWizard } = useNavigation();
   const [activeTab, setActiveTab] = useState<
-    "overview" | "flights" | "hotel" | "activities" | "budget"
+    "overview" | "flights" | "hotel" | "car" | "activities" | "budget"
   >("overview");
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [isClient, setIsClient] = useState(false);
@@ -98,6 +99,7 @@ export const TripDetailPage = ({ trip }: TripDetailPageProps) => {
     { id: "overview", label: "Resumen", icon: "📋" },
     { id: "flights", label: "Vuelos", icon: "✈️" },
     { id: "hotel", label: "Hotel", icon: "🏨" },
+    ...(trip.carRental ? [{ id: "car", label: "Auto", icon: "🚗" }] : []),
     { id: "activities", label: "Actividades", icon: "🎯" },
     // { id: "itinerary", label: "Itinerario", icon: "📅" }, // Comentado para MVP
     { id: "budget", label: "Presupuesto", icon: "💰" },
@@ -184,6 +186,14 @@ export const TripDetailPage = ({ trip }: TripDetailPageProps) => {
           {activeTab === "hotel" && (
             <HotelTab
               trip={trip}
+              status={trip.status}
+              openGoogleMaps={openGoogleMaps}
+              isClient={isClient}
+            />
+          )}
+          {activeTab === "car" && trip.carRental && (
+            <CarTab
+              carRental={trip.carRental}
               status={trip.status}
               openGoogleMaps={openGoogleMaps}
               isClient={isClient}

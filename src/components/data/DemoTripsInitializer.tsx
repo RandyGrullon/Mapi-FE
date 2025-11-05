@@ -113,6 +113,26 @@ export class DemoTripsInitializer {
           totalPrice: 3200,
           pricePerNight: 400,
         },
+        carRental: {
+          company: "Europcar",
+          carType: "compact",
+          carModel: "Peugeot 308 o similar",
+          pickupLocation: "Aeropuerto Charles de Gaulle - Terminal 2E",
+          dropoffLocation: "Aeropuerto Charles de Gaulle - Terminal 2E",
+          pickupDate: "2024-08-16",
+          pickupTime: "10:00",
+          dropoffDate: "2024-08-24",
+          dropoffTime: "12:00",
+          totalDays: 8,
+          pricePerDay: 45,
+          totalPrice: 360,
+          confirmationCode: "EURPRS8945",
+          insurance: "Cobertura completa incluida",
+          transmission: "manual",
+          fuelPolicy: "Lleno a lleno",
+          features: ["A/C", "GPS", "Bluetooth", "5 puertas"],
+          imageUrl: "/images/cars/peugeot308.jpg",
+        },
         activities: [
           {
             id: "act_paris_1",
@@ -316,9 +336,10 @@ export class DemoTripsInitializer {
         budget: {
           flights: 1360,
           hotel: 3200,
+          carRental: 360,
           activities: 470,
           extras: 800,
-          total: 5830,
+          total: 6190,
         },
       },
 
@@ -591,6 +612,7 @@ export class DemoTripsInitializer {
         budget: {
           flights: 1260,
           hotel: 1800,
+          carRental: 0,
           activities: 710,
           extras: 600,
           total: 4370,
@@ -859,6 +881,7 @@ export class DemoTripsInitializer {
         budget: {
           flights: 240,
           hotel: 2400,
+          carRental: 0,
           activities: 960,
           extras: 400,
           total: 4000,

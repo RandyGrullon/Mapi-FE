@@ -37,12 +37,28 @@ interface Activity {
   included: string[];
 }
 
+interface CarRental {
+  id: string;
+  company: string;
+  carType: string;
+  carModel: string;
+  transmission: "automatic" | "manual";
+  seats: number;
+  pricePerDay: number;
+  totalDays: number;
+  totalPrice: number;
+  features: string[];
+  rating: number;
+  imageUrl?: string;
+}
+
 interface TravelPackage {
   id: string;
   name: string;
   description: string;
   flight: Flight;
   hotel: Hotel;
+  carRental?: CarRental;
   activities: Activity[];
   totalPrice: number;
   savings: number;
@@ -61,10 +77,11 @@ export const TravelPackages = ({
   onClose,
 }: TravelPackagesProps) => {
   const [selectedTab, setSelectedTab] = useState<
-    "packages" | "flights" | "hotels" | "activities"
+    "packages" | "flights" | "hotels" | "cars" | "activities"
   >("packages");
   const [selectedFlights, setSelectedFlights] = useState<string[]>([]);
   const [selectedHotels, setSelectedHotels] = useState<string[]>([]);
+  const [selectedCars, setSelectedCars] = useState<string[]>([]);
   const [selectedActivities, setSelectedActivities] = useState<string[]>([]);
   const [toast, setToast] = useState<{
     message: string;
@@ -88,6 +105,7 @@ export const TravelPackages = ({
   const packages: TravelPackage[] = generatePackages(travelInfo);
   const flights: Flight[] = generateFlights(travelInfo);
   const hotels: Hotel[] = generateHotels(travelInfo);
+  const cars: CarRental[] = generateCars(travelInfo);
   const activities: Activity[] = generateActivities(travelInfo);
 
   const handleSelectFlight = (flightId: string) => {
@@ -103,6 +121,14 @@ export const TravelPackages = ({
       setSelectedHotels(selectedHotels.filter((id) => id !== hotelId));
     } else if (selectedHotels.length < 3) {
       setSelectedHotels([...selectedHotels, hotelId]);
+    }
+  };
+
+  const handleSelectCar = (carId: string) => {
+    if (selectedCars.includes(carId)) {
+      setSelectedCars(selectedCars.filter((id) => id !== carId));
+    } else if (selectedCars.length < 3) {
+      setSelectedCars([...selectedCars, carId]);
     }
   };
 
@@ -124,14 +150,19 @@ export const TravelPackages = ({
 
     const flight = flights.find((f) => f.id === selectedFlights[0])!;
     const hotel = hotels.find((h) => h.id === selectedHotels[0])!;
+    const selectedCar = selectedCars.length > 0 
+      ? cars.find((c) => c.id === selectedCars[0])
+      : undefined;
     const selectedActivitiesList = activities.filter((a) =>
       selectedActivities.includes(a.id)
     );
 
     const nights = parseInt(travelInfo.duration) || 5;
+    const carPrice = selectedCar ? selectedCar.totalPrice : 0;
     const totalPrice =
       flight.price +
       hotel.pricePerNight * nights +
+      carPrice +
       selectedActivitiesList.reduce((sum, a) => sum + a.price, 0);
 
     const customPackage: TravelPackage = {
@@ -140,6 +171,7 @@ export const TravelPackages = ({
       description: "Tu paquete hecho a medida",
       flight,
       hotel,
+      carRental: selectedCar,
       activities: selectedActivitiesList,
       totalPrice,
       savings: 0,
@@ -193,6 +225,7 @@ export const TravelPackages = ({
               { id: "packages", label: "Paquetes", icon: "🎁" },
               { id: "flights", label: "Vuelos", icon: "✈️" },
               { id: "hotels", label: "Hoteles", icon: "🏨" },
+              { id: "cars", label: "Autos", icon: "🚗" },
               { id: "activities", label: "Actividades", icon: "🎯" },
             ].map((tab) => (
               <button
@@ -234,6 +267,14 @@ export const TravelPackages = ({
               nights={parseInt(travelInfo.duration) || 5}
             />
           )}
+          {selectedTab === "cars" && (
+            <CarsView
+              cars={cars}
+              selected={selectedCars}
+              onToggle={handleSelectCar}
+              days={parseInt(travelInfo.duration) || 5}
+            />
+          )}
           {selectedTab === "activities" && (
             <ActivitiesView
               activities={activities}
@@ -252,7 +293,7 @@ export const TravelPackages = ({
                   <span className="font-medium">Seleccionado:</span>
                   <span className="ml-2 text-gray-600">
                     {selectedFlights.length} vuelos • {selectedHotels.length}{" "}
-                    hoteles • {selectedActivities.length} actividades
+                    hoteles • {selectedCars.length} autos • {selectedActivities.length} actividades
                   </span>
                 </div>
               </div>
@@ -352,6 +393,20 @@ const PackagesView = ({
                 <span>• {pkg.hotel.rating}/5</span>
               </div>
             </div>
+
+            {/* Auto (si existe) */}
+            {pkg.carRental && (
+              <div className="mb-4 p-3 bg-indigo-50 rounded-lg">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="text-lg">🚗</span>
+                  <span className="font-bold text-sm">Renta de Auto</span>
+                </div>
+                <p className="text-sm text-gray-700">{pkg.carRental.carModel}</p>
+                <p className="text-xs text-gray-600">
+                  {pkg.carRental.company} • {pkg.carRental.totalDays} días
+                </p>
+              </div>
+            )}
 
             {/* Actividades */}
             <div className="mb-4 p-3 bg-purple-50 rounded-lg">
@@ -565,6 +620,88 @@ const HotelsView = ({
   );
 };
 
+// Componente: Vista de Autos
+const CarsView = ({
+  cars,
+  selected,
+  onToggle,
+  days,
+}: {
+  cars: CarRental[];
+  selected: string[];
+  onToggle: (id: string) => void;
+  days: number;
+}) => {
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      {cars.map((car) => {
+        const isSelected = selected.includes(car.id);
+        const canSelect = selected.length < 3 || isSelected;
+
+        return (
+          <div
+            key={car.id}
+            onClick={() => canSelect && onToggle(car.id)}
+            className={`p-5 rounded-xl border-2 transition-all cursor-pointer ${
+              isSelected
+                ? "border-indigo-500 bg-indigo-50"
+                : canSelect
+                ? "border-gray-200 hover:border-indigo-300 hover:shadow-md"
+                : "border-gray-200 opacity-50 cursor-not-allowed"
+            }`}
+          >
+            <div className="flex items-start justify-between mb-3">
+              <span className="text-3xl">🚗</span>
+              {isSelected && (
+                <div className="px-2 py-1 bg-indigo-600 text-white rounded-full text-xs font-medium">
+                  ✓
+                </div>
+              )}
+            </div>
+
+            <h4 className="font-bold text-lg mb-1">{car.carModel}</h4>
+            <p className="text-sm text-gray-600 mb-2">{car.company}</p>
+            <div className="flex items-center gap-2 mb-3">
+              <span className="text-yellow-500">⭐</span>
+              <span className="text-sm font-medium">{car.rating}/5</span>
+              <span className="text-xs text-gray-500">
+                • {car.carType} • {car.seats} asientos
+              </span>
+            </div>
+
+            <div className="mb-3">
+              <p className="text-xs text-gray-600 mb-1">Características:</p>
+              <div className="flex flex-wrap gap-1">
+                <span className="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded capitalize">
+                  {car.transmission === "automatic" ? "Automático" : "Manual"}
+                </span>
+                {car.features.slice(0, 2).map((feature, idx) => (
+                  <span
+                    key={idx}
+                    className="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded"
+                  >
+                    {feature}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            <div className="border-t pt-3">
+              <p className="text-xs text-gray-600">Por {car.totalDays} días</p>
+              <p className="text-2xl font-bold text-indigo-600">
+                ${car.totalPrice}
+              </p>
+              <p className="text-xs text-gray-500">
+                ${car.pricePerDay}/día
+              </p>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+};
+
 // Componente: Vista de Actividades
 const ActivitiesView = ({
   activities,
@@ -643,6 +780,7 @@ const ActivitiesView = ({
 function generatePackages(travelInfo: TravelInfo): TravelPackage[] {
   const flights = generateFlights(travelInfo);
   const hotels = generateHotels(travelInfo);
+  const cars = generateCars(travelInfo);
   const activities = generateActivities(travelInfo);
   const nights = parseInt(travelInfo.duration) || 5;
 
@@ -668,14 +806,16 @@ function generatePackages(travelInfo: TravelInfo): TravelPackage[] {
       description: "La mejor experiencia de viaje",
       flight: flights[1],
       hotel: hotels[1],
+      carRental: cars[1],
       activities: activities.slice(1, 4),
       totalPrice:
         flights[1].price +
         hotels[1].pricePerNight * nights +
+        cars[1].totalPrice +
         activities[1].price +
         activities[2].price +
         activities[3].price,
-      savings: 350,
+      savings: 450,
       recommended: true,
     },
     {
@@ -684,14 +824,16 @@ function generatePackages(travelInfo: TravelInfo): TravelPackage[] {
       description: "Para los amantes de la aventura",
       flight: flights[2],
       hotel: hotels[2],
+      carRental: cars[2],
       activities: activities.slice(3, 6),
       totalPrice:
         flights[2].price +
         hotels[2].pricePerNight * nights +
+        cars[2].totalPrice +
         activities[3].price +
         activities[4].price +
         activities[5].price,
-      savings: 280,
+      savings: 380,
       recommended: false,
     },
   ];
@@ -834,6 +976,91 @@ function generateActivities(travelInfo: TravelInfo): Activity[] {
       price: 95,
       rating: 4.9,
       included: ["Masaje", "Sauna", "Jacuzzi", "Té y snacks"],
+    },
+  ];
+}
+
+function generateCars(travelInfo: TravelInfo): CarRental[] {
+  const days = parseInt(travelInfo.duration) || 5;
+  
+  return [
+    {
+      id: "car-1",
+      company: "Budget",
+      carType: "economy",
+      carModel: "Toyota Yaris o similar",
+      transmission: "automatic",
+      seats: 5,
+      pricePerDay: 35,
+      totalDays: days,
+      totalPrice: 35 * days,
+      features: ["A/C", "Bluetooth", "USB"],
+      rating: 4.3,
+    },
+    {
+      id: "car-2",
+      company: "Hertz",
+      carType: "suv",
+      carModel: "Nissan Kicks o similar",
+      transmission: "automatic",
+      seats: 5,
+      pricePerDay: 65,
+      totalDays: days,
+      totalPrice: 65 * days,
+      features: ["A/C", "GPS", "Bluetooth", "Cámara trasera"],
+      rating: 4.7,
+    },
+    {
+      id: "car-3",
+      company: "Avis",
+      carType: "suv",
+      carModel: "Jeep Compass o similar",
+      transmission: "automatic",
+      seats: 5,
+      pricePerDay: 75,
+      totalDays: days,
+      totalPrice: 75 * days,
+      features: ["A/C", "GPS", "4x4", "Bluetooth", "Apple CarPlay"],
+      rating: 4.8,
+    },
+    {
+      id: "car-4",
+      company: "Enterprise",
+      carType: "compact",
+      carModel: "Hyundai Accent o similar",
+      transmission: "automatic",
+      seats: 5,
+      pricePerDay: 40,
+      totalDays: days,
+      totalPrice: 40 * days,
+      features: ["A/C", "Bluetooth", "Control crucero"],
+      rating: 4.4,
+    },
+    {
+      id: "car-5",
+      company: "Sixt",
+      carType: "luxury",
+      carModel: "BMW Serie 3 o similar",
+      transmission: "automatic",
+      seats: 5,
+      pricePerDay: 120,
+      totalDays: days,
+      totalPrice: 120 * days,
+      features: ["A/C", "GPS", "Asientos de cuero", "Bluetooth", "Premium sound"],
+      rating: 4.9,
+    },
+    {
+      id: "car-6",
+      company: "Thrifty",
+      carType: "economy",
+      carModel: "Kia Rio o similar",
+      transmission: "manual",
+      seats: 5,
+      pricePerDay: 28,
+      totalDays: days,
+      totalPrice: 28 * days,
+      features: ["A/C", "Radio"],
+      rating: 4.2,
     },
   ];
 }

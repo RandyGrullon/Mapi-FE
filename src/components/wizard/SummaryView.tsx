@@ -16,6 +16,7 @@ import {
   FlightType,
 } from "@/types/wizard";
 import { useWizardStore } from "@/stores/wizardStore";
+import { DraftManager } from "../drafts/DraftManager";
 
 export const SummaryView = () => {
   const {
@@ -24,6 +25,7 @@ export const SummaryView = () => {
     goToModule,
     addModule,
     updateModuleData,
+    setCurrentDraftId,
   } = useWizardStore();
   const router = useRouter();
 
@@ -67,6 +69,15 @@ export const SummaryView = () => {
       default:
         return "Servicio";
     }
+  };
+
+  const handleStartOver = () => {
+    // Limpiar el borrador actual (sin eliminarlo, solo desvincularlo)
+    DraftManager.clearCurrentDraft();
+    setCurrentDraftId(null);
+    
+    // Resetear el wizard para empezar desde cero
+    resetWizard();
   };
 
   return (
@@ -231,7 +242,7 @@ export const SummaryView = () => {
       {/* Actions */}
       <div className="flex flex-col sm:flex-row gap-4">
         <button
-          onClick={resetWizard}
+          onClick={handleStartOver}
           className="flex-1 px-8 py-4 border-2 border-gray-200 rounded-xl font-semibold text-gray-700 hover:bg-gray-50 hover:border-gray-300 transition-all duration-200"
         >
           ← Empezar de nuevo

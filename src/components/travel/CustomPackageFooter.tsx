@@ -3,6 +3,7 @@
 interface CustomPackageFooterProps {
   selectedFlight: string | null;
   selectedHotel: string | null;
+  selectedCar: string | null;
   selectedActivities: string[];
   onCreatePackage: () => void;
 }
@@ -10,6 +11,7 @@ interface CustomPackageFooterProps {
 export const CustomPackageFooter = ({
   selectedFlight,
   selectedHotel,
+  selectedCar,
   selectedActivities,
   onCreatePackage,
 }: CustomPackageFooterProps) => {
@@ -44,6 +46,18 @@ export const CustomPackageFooter = ({
                     }`}
                   ></span>
                   {selectedHotel ? "1 hotel" : "0 hoteles"}
+                </span>
+                <span
+                  className={`flex items-center gap-1.5 ${
+                    selectedCar ? "text-gray-900 font-medium" : ""
+                  }`}
+                >
+                  <span
+                    className={`w-1.5 h-1.5 rounded-full ${
+                      selectedCar ? "bg-indigo-600" : "bg-gray-300"
+                    }`}
+                  ></span>
+                  {selectedCar ? "1 auto" : "0 autos"}
                 </span>
                 <span
                   className={`flex items-center gap-1.5 ${

@@ -11,6 +11,9 @@ export const BudgetTab = ({ trip }: BudgetTabProps) => {
   const items = [
     { label: "Vuelos", amount: budget.flights, icon: "✈️" },
     { label: "Hotel", amount: budget.hotel, icon: "🏨" },
+    ...(budget.carRental > 0
+      ? [{ label: "Renta de Auto", amount: budget.carRental, icon: "🚗" }]
+      : []),
     { label: "Actividades", amount: budget.activities, icon: "🎯" },
     { label: "Extras", amount: budget.extras, icon: "🎁" },
   ];

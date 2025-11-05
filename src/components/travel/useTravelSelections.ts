@@ -2,12 +2,13 @@
 
 import { useState } from "react";
 
-export type TabType = "packages" | "flights" | "hotels" | "activities";
+export type TabType = "packages" | "flights" | "hotels" | "cars" | "activities";
 
 export function useTravelSelections() {
   const [selectedTab, setSelectedTab] = useState<TabType>("packages");
   const [selectedFlight, setSelectedFlight] = useState<string | null>(null);
   const [selectedHotel, setSelectedHotel] = useState<string | null>(null);
+  const [selectedCar, setSelectedCar] = useState<string | null>(null);
   const [selectedActivities, setSelectedActivities] = useState<string[]>([]);
 
   const handleSelectFlight = (flightId: string) => {
@@ -28,12 +29,22 @@ export function useTravelSelections() {
     }
   };
 
+  const handleSelectCar = (carId: string) => {
+    // Solo permite seleccionar 1 carro
+    if (selectedCar === carId) {
+      setSelectedCar(null);
+    } else {
+      setSelectedCar(carId);
+    }
+  };
+
   const handleSelectActivity = (activityId: string) => {
     if (selectedActivities.includes(activityId)) {
       setSelectedActivities(
         selectedActivities.filter((id) => id !== activityId)
       );
-    } else if (selectedActivities.length < 3) {
+    } else {
+      // Permitir seleccionar todas las actividades sin límite
       setSelectedActivities([...selectedActivities, activityId]);
     }
   };
@@ -41,6 +52,7 @@ export function useTravelSelections() {
   const resetSelections = () => {
     setSelectedFlight(null);
     setSelectedHotel(null);
+    setSelectedCar(null);
     setSelectedActivities([]);
   };
 
@@ -49,9 +61,11 @@ export function useTravelSelections() {
     setSelectedTab,
     selectedFlight,
     selectedHotel,
+    selectedCar,
     selectedActivities,
     handleSelectFlight,
     handleSelectHotel,
+    handleSelectCar,
     handleSelectActivity,
     resetSelections,
     hasValidSelection: selectedFlight && selectedHotel,

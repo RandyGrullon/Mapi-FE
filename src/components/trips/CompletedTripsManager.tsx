@@ -57,6 +57,29 @@ export type ActivityReservation = {
   bookingUrl?: string; // URL para reservar la actividad
 };
 
+// Tipo para renta de vehículo
+export type CarRentalReservation = {
+  company: string; // Empresa de renta (Hertz, Avis, etc.)
+  carType: string; // economy, compact, suv, luxury
+  carModel: string; // Modelo del vehículo
+  pickupLocation: string;
+  dropoffLocation: string;
+  pickupDate: string;
+  pickupTime: string;
+  dropoffDate: string;
+  dropoffTime: string;
+  totalDays: number;
+  pricePerDay: number;
+  totalPrice: number;
+  confirmationCode: string;
+  insurance?: string; // Tipo de seguro incluido
+  transmission: "automatic" | "manual";
+  fuelPolicy: string; // Full-to-Full, Pre-paid, etc.
+  features?: string[]; // GPS, Child seat, etc.
+  imageUrl?: string;
+  bookingUrl?: string;
+};
+
 // Tipo para el itinerario diario
 export type DayItinerary = {
   day: number;
@@ -102,6 +125,7 @@ export type CompletedTrip = {
     return?: FlightReservation;
   };
   hotel: HotelReservation;
+  carRental?: CarRentalReservation; // Renta de vehículo (opcional)
   activities: ActivityReservation[];
 
   // Itinerario
@@ -112,6 +136,7 @@ export type CompletedTrip = {
     total: number;
     flights: number;
     hotel: number;
+    carRental: number; // Costo de renta de vehículo
     activities: number;
     extras: number;
   };
@@ -362,12 +387,13 @@ export class CompletedTripsManager {
     const budget = {
       flights: outboundFlight.price + (returnFlight?.price || 0),
       hotel: hotelReservation.totalPrice,
+      carRental: 0, // Por ahora 0, se actualizará cuando se agregue el servicio
       activities: activities.reduce((sum, act) => sum + act.price, 0),
       extras: 200,
       total: 0,
     };
     budget.total =
-      budget.flights + budget.hotel + budget.activities + budget.extras;
+      budget.flights + budget.hotel + budget.carRental + budget.activities + budget.extras;
 
     const trip: CompletedTrip = {
       id,
