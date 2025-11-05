@@ -6,6 +6,7 @@ import { useSidebar } from "./SidebarContext";
 import { DemoTripsInitializer } from "../data/DemoTripsInitializer";
 import { ConfirmModal } from "../modals/ConfirmModal";
 import { EditTripNameModal } from "../modals/EditTripNameModal";
+import { EditDraftNameModal } from "../modals/EditDraftNameModal";
 import { ShareModal } from "../modals/ShareModal";
 import { Toast, ToastType } from "../ui/Toast";
 import { useTrips } from "../trips/useTrips";
@@ -16,6 +17,9 @@ import { SidebarFooter } from "./SidebarFooter";
 import { MobileSidebarToggle } from "./MobileSidebarToggle";
 import { formatDate } from "../data/utils";
 import { useWizardStore } from "@/stores/wizardStore";
+import { useDraftStore } from "@/stores/draftStore";
+import { DraftList } from "../drafts/DraftList";
+import { Draft } from "@/types/draft";
 
 export const Sidebar = () => {
   const [isEditTripModalOpen, setIsEditTripModalOpen] = useState(false);
@@ -24,6 +28,13 @@ export const Sidebar = () => {
   const [tripToShare, setTripToShare] = useState<any>(null);
   const [isDeleteTripModalOpen, setIsDeleteTripModalOpen] = useState(false);
   const [tripToDelete, setTripToDelete] = useState<any>(null);
+
+  // Estados para drafts
+  const [isEditDraftModalOpen, setIsEditDraftModalOpen] = useState(false);
+  const [draftToEdit, setDraftToEdit] = useState<Draft | null>(null);
+  const [isDeleteDraftModalOpen, setIsDeleteDraftModalOpen] = useState(false);
+  const [draftToDelete, setDraftToDelete] = useState<Draft | null>(null);
+
   const [toast, setToast] = useState<{
     message: string;
     type: ToastType;
@@ -45,6 +56,13 @@ export const Sidebar = () => {
   } = useSidebarState();
 
   const { resetWizard } = useWizardStore();
+  const {
+    currentDraftId,
+    loadDraft,
+    deleteDraft,
+    updateDraftName,
+    clearCurrentDraft,
+  } = useDraftStore();
   const router = useRouter();
   const pathname = usePathname();
 
@@ -66,6 +84,7 @@ export const Sidebar = () => {
   const handleNewWizard = () => {
     // Resetear el wizard para empezar desde cero
     resetWizard();
+    clearCurrentDraft();
 
     // Navegar al wizard
     router.push("/plan");
@@ -116,6 +135,45 @@ export const Sidebar = () => {
   const cancelDeleteTrip = () => {
     setTripToDelete(null);
     setIsDeleteTripModalOpen(false);
+  };
+
+  // Funciones para drafts
+  const handleDraftClick = (draft: Draft) => {
+    loadDraft(draft.id);
+    router.push("/plan");
+    closeMobileSidebar();
+    showToast("Borrador cargado", "success");
+  };
+
+  const handleEditDraftName = (draft: Draft, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setDraftToEdit(draft);
+    setIsEditDraftModalOpen(true);
+  };
+
+  const handleSaveDraftName = (draftId: string, newName: string) => {
+    updateDraftName(draftId, newName);
+    showToast("Nombre del borrador actualizado", "success");
+  };
+
+  const handleDeleteDraft = (draft: Draft, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setDraftToDelete(draft);
+    setIsDeleteDraftModalOpen(true);
+  };
+
+  const confirmDeleteDraft = () => {
+    if (draftToDelete) {
+      deleteDraft(draftToDelete.id);
+      showToast("Borrador eliminado exitosamente", "success");
+      setDraftToDelete(null);
+    }
+    setIsDeleteDraftModalOpen(false);
+  };
+
+  const cancelDeleteDraft = () => {
+    setDraftToDelete(null);
+    setIsDeleteDraftModalOpen(false);
   };
 
   return (
@@ -179,7 +237,17 @@ export const Sidebar = () => {
           />
 
           {/* Content section - takes remaining space */}
-          <div className="flex-1 overflow-hidden flex flex-col">
+          <div className="flex-1 overflow-hidden flex flex-col gap-4">
+            {/* Drafts Section */}
+            <DraftList
+              isCollapsed={isCollapsed}
+              onDraftClick={handleDraftClick}
+              onEditDraftName={handleEditDraftName}
+              onDeleteDraft={handleDeleteDraft}
+              selectedDraftId={currentDraftId}
+            />
+
+            {/* Trips Section */}
             <TripsSection
               trips={trips}
               selectedTripId={selectedTripId}
@@ -203,6 +271,14 @@ export const Sidebar = () => {
         onSave={handleSaveTripName}
       />
 
+      {/* Modal de edición de nombre de borrador */}
+      <EditDraftNameModal
+        isOpen={isEditDraftModalOpen}
+        draft={draftToEdit}
+        onClose={() => setIsEditDraftModalOpen(false)}
+        onSave={handleSaveDraftName}
+      />
+
       {/* Modal de compartir viaje */}
       <ShareModal
         isOpen={isShareTripModalOpen}
@@ -223,6 +299,22 @@ export const Sidebar = () => {
         cancelText="Cancelar"
         onConfirm={confirmDeleteTrip}
         onCancel={cancelDeleteTrip}
+        variant="danger"
+      />
+
+      {/* Modal de confirmación de eliminación de borrador */}
+      <ConfirmModal
+        isOpen={isDeleteDraftModalOpen}
+        title="Eliminar Borrador"
+        message={
+          draftToDelete
+            ? `¿Estás seguro de que deseas eliminar el borrador "${draftToDelete.name}"? Esta acción no se puede deshacer.`
+            : "¿Estás seguro de que deseas eliminar este borrador? Esta acción no se puede deshacer."
+        }
+        confirmText="Eliminar"
+        cancelText="Cancelar"
+        onConfirm={confirmDeleteDraft}
+        onCancel={cancelDeleteDraft}
         variant="danger"
       />
 

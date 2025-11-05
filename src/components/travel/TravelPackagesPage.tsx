@@ -6,6 +6,8 @@ import { useNavigation } from "../navigation/NavigationContext";
 import { CompletedTripsManager } from "../trips/CompletedTripsManager";
 import { Toast, ToastType } from "../ui/Toast";
 import { useTravelSelections } from "./useTravelSelections";
+import { useDraftStore } from "@/stores/draftStore";
+import { useWizardStore } from "@/stores/wizardStore";
 import { TravelHeader } from "../ui/TravelHeader";
 import { CustomPackageFooter } from "./CustomPackageFooter";
 import { PackagesView } from "../views/PackagesView";
@@ -28,6 +30,8 @@ interface TravelPackagesPageProps {
 
 export const TravelPackagesPage = ({ travelInfo }: TravelPackagesPageProps) => {
   const { navigateToWizard, navigateToTripDetail } = useNavigation();
+  const { currentDraftId, deleteDraft, clearCurrentDraft } = useDraftStore();
+  const { resetWizard } = useWizardStore();
   const {
     selectedTab,
     setSelectedTab,
@@ -71,6 +75,16 @@ export const TravelPackagesPage = ({ travelInfo }: TravelPackagesPageProps) => {
     const demoTrip = CompletedTripsManager.createDemoTrip(travelInfo);
     CompletedTripsManager.saveTrip(demoTrip);
 
+    // Eliminar el draft actual ya que se creó un viaje
+    if (currentDraftId) {
+      console.log("🗑️ Eliminando draft al reservar paquete:", currentDraftId);
+      deleteDraft(currentDraftId);
+      clearCurrentDraft();
+    }
+
+    // Resetear el wizard para la próxima vez
+    resetWizard();
+
     showToast(
       "¡Paquete reservado exitosamente! Preparando tu viaje...",
       "success"
@@ -103,6 +117,19 @@ export const TravelPackagesPage = ({ travelInfo }: TravelPackagesPageProps) => {
     // Crear el viaje personalizado con itinerario basado en actividades
     const demoTrip = CompletedTripsManager.createDemoTrip(travelInfo);
     CompletedTripsManager.saveTrip(demoTrip);
+
+    // Eliminar el draft actual ya que se creó un viaje personalizado
+    if (currentDraftId) {
+      console.log(
+        "🗑️ Eliminando draft al crear paquete personalizado:",
+        currentDraftId
+      );
+      deleteDraft(currentDraftId);
+      clearCurrentDraft();
+    }
+
+    // Resetear el wizard para la próxima vez
+    resetWizard();
 
     const activitiesText =
       selectedActivitiesList.length > 0

@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { TravelInfo } from "../wizard/WizardProvider";
 import { useNavigation } from "../navigation/NavigationContext";
+import { useDraftStore } from "@/stores/draftStore";
+import { useWizardStore } from "@/stores/wizardStore";
 
 interface SearchButtonProps {
   travelInfo: TravelInfo;
@@ -12,6 +14,8 @@ interface SearchButtonProps {
 export const SearchButton = ({ travelInfo, onSearch }: SearchButtonProps) => {
   const [isSearching, setIsSearching] = useState(false);
   const { navigateToPackages } = useNavigation();
+  const { currentDraftId, deleteDraft, clearCurrentDraft } = useDraftStore();
+  const { resetWizard } = useWizardStore();
 
   const handleSearch = () => {
     setIsSearching(true);
@@ -19,6 +23,14 @@ export const SearchButton = ({ travelInfo, onSearch }: SearchButtonProps) => {
     // Simular búsqueda
     setTimeout(() => {
       setIsSearching(false);
+
+      // Eliminar el draft actual ya que el usuario va a crear un viaje
+      if (currentDraftId) {
+        console.log("🗑️ Eliminando draft al buscar paquetes:", currentDraftId);
+        deleteDraft(currentDraftId);
+        clearCurrentDraft();
+      }
+
       navigateToPackages(travelInfo);
     }, 2000);
   };

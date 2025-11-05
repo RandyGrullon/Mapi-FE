@@ -7,12 +7,15 @@
 
 import { ModularWizard } from "@/components/wizard/ModularWizard";
 import { useWizardStore } from "@/stores/wizardStore";
+import { DraftManager } from "@/components/drafts/DraftManager";
 
 export default function ModularWizardPage() {
   const { resetWizard } = useWizardStore();
 
   return (
     <div className="min-h-screen bg-gray-50">
+      <DraftManager />
+
       {/* Header */}
       <header className="bg-white border-b border-gray-200 px-6 py-4 shadow-sm">
         <div className="max-w-7xl mx-auto flex items-center justify-between">

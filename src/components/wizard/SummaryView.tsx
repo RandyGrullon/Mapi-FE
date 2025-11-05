@@ -96,9 +96,35 @@ export const SummaryView = () => {
         <h2 className="text-4xl font-bold text-gray-900 mb-3">
           Configuración completada
         </h2>
-        <p className="text-lg text-gray-500">
+        <p className="text-lg text-gray-500 mb-4">
           Revisa los detalles de tu viaje antes de buscar opciones
         </p>
+
+        {/* Botón volver a editar */}
+        <button
+          onClick={() => {
+            // Volver al último módulo
+            if (activeModules.length > 0) {
+              goToModule(activeModules.length - 1);
+            }
+          }}
+          className="inline-flex items-center gap-2 px-6 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors font-medium"
+        >
+          <svg
+            className="w-5 h-5"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M11 17l-5-5m0 0l5-5m-5 5h12"
+            />
+          </svg>
+          Volver a editar
+        </button>
       </div>
 
       {/* Modules Summary */}
