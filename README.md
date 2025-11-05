@@ -115,7 +115,20 @@ La aplicación estará disponible en `http://localhost:3000`
 - `npm run start`: Inicia el servidor de producción
 - `npm run lint`: Ejecuta ESLint
 
-## 📁 Estructura del Proyecto
+## � Documentación
+
+Toda la documentación técnica y guías están organizadas en la carpeta `/docs`:
+
+- **[Guía de Inicio Rápido](./docs/DRAFT_QUICK_START.md)** - Empieza aquí para usar el sistema de borradores
+- **[Sistema de Borradores](./docs/DRAFT_SYSTEM_COMPLETE.md)** - Documentación completa del sistema de drafts
+- **[Sistema Modular](./docs/MODULAR_DRAFTS_SYSTEM.md)** - Wizard modular y gestión de estados
+- **[Mejoras de UI/UX](./docs/SIDEBAR_DRAFTS_IMPROVEMENTS.md)** - Diseño del sidebar y componentes
+- **[Características Futuras](./docs/FUTURE_FEATURES.md)** - Roadmap y próximas funcionalidades
+- **[Migración a Supabase](./docs/SUPABASE_MIGRATION.md)** - Plan de migración de backend
+
+👉 **[Ver toda la documentación](./docs/README.md)**
+
+## �📁 Estructura del Proyecto
 
 ```
 src/
@@ -124,28 +137,37 @@ src/
 │   ├── page.tsx                 # Página de inicio
 │   ├── globals.css              # Estilos globales
 │   ├── login/                   # Página de login
-│   ├── register/                # Página de registro
-│   └── chat/                    # Página de chat
+│   ├── plan/                    # Página de planificación
+│   ├── packages/                # Paquetes de viaje
+│   ├── trip/                    # Detalles de viaje
+│   └── wizard-modular/          # Wizard modular
 ├── components/                  # Componentes React
 │   ├── ui/                      # Componentes shadcn/ui
-│   ├── WizardLayout.tsx         # Layout del wizard
-│   ├── WizardContent.tsx        # Contenido del wizard
-│   ├── ChatInterface.tsx        # Interfaz de chat
-│   ├── TravelPlanner.tsx        # Planificador de viajes
-│   ├── ConversationsList.tsx    # Lista de conversaciones
+│   ├── drafts/                  # Componentes de borradores
+│   ├── wizard/                  # Componentes del wizard
+│   ├── sidebar/                 # Sidebar y navegación
+│   ├── trips/                   # Gestión de viajes
+│   ├── travel/                  # Paquetes de viaje
 │   └── ...
 ├── lib/                         # Utilidades y configuración
-│   ├── auth-context.tsx         # Contexto de autenticación
-│   ├── chat-context.tsx         # Contexto de chat
-│   ├── types.ts                 # Definiciones TypeScript
-│   └── utils.ts                 # Funciones utilitarias
-├── hooks/                       # Custom hooks
-│   ├── use-mobile.tsx
-│   └── use-toast.ts
-└── service/                     # Servicios de API
-    ├── auth/                    # Servicios de autenticación
-    ├── chat/                    # Servicios de chat
-    └── user/                    # Servicios de usuario
+│   ├── utils.ts                 # Funciones utilitarias
+│   └── ...
+├── stores/                      # Estado global (Zustand)
+│   ├── wizardStore.ts           # Estado del wizard
+│   ├── draftStore.ts            # Estado de borradores
+│   └── ...
+├── types/                       # Definiciones TypeScript
+│   ├── wizard.ts                # Tipos del wizard
+│   ├── draft.ts                 # Tipos de borradores
+│   └── ...
+└── hooks/                       # Custom hooks
+    ├── use-mobile.tsx
+    └── use-toast.ts
+docs/                            # Documentación técnica
+├── README.md                    # Índice de documentación
+├── DRAFT_SYSTEM_COMPLETE.md
+├── DRAFT_QUICK_START.md
+└── ...
 ```
 
 ## 🔧 Configuración Avanzada

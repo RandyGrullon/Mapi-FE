@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { CompletedTrip, TripParticipant } from "../trips/CompletedTripsManager";
 import { Toast, ToastType } from "../ui/Toast";
+import { JoinRequestModal } from "../notifications/JoinRequestModal";
 
 interface ShareModalProps {
   isOpen: boolean;
@@ -160,10 +161,20 @@ export const ShareModal = ({
               </p>
             </div>
 
+            {/* Divider */}
+            <div className="relative my-6">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-gray-300"></div>
+              </div>
+              <div className="relative flex justify-center text-sm">
+                <span className="px-2 bg-white text-gray-500">Opciones de participación</span>
+              </div>
+            </div>
+
             {/* Agregar participante */}
             <div className="mb-6">
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Agregar Participante
+                Agregar Participante Directamente
               </label>
               <div className="space-y-3">
                 <input

@@ -26,7 +26,6 @@ export const SearchButton = ({ travelInfo, onSearch }: SearchButtonProps) => {
 
       // Eliminar el draft actual ya que el usuario va a crear un viaje
       if (currentDraftId) {
-        console.log("🗑️ Eliminando draft al buscar paquetes:", currentDraftId);
         deleteDraft(currentDraftId);
         clearCurrentDraft();
       }

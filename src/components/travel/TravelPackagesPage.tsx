@@ -77,7 +77,6 @@ export const TravelPackagesPage = ({ travelInfo }: TravelPackagesPageProps) => {
 
     // Eliminar el draft actual ya que se creó un viaje
     if (currentDraftId) {
-      console.log("🗑️ Eliminando draft al reservar paquete:", currentDraftId);
       deleteDraft(currentDraftId);
       clearCurrentDraft();
     }
@@ -120,10 +119,6 @@ export const TravelPackagesPage = ({ travelInfo }: TravelPackagesPageProps) => {
 
     // Eliminar el draft actual ya que se creó un viaje personalizado
     if (currentDraftId) {
-      console.log(
-        "🗑️ Eliminando draft al crear paquete personalizado:",
-        currentDraftId
-      );
       deleteDraft(currentDraftId);
       clearCurrentDraft();
     }

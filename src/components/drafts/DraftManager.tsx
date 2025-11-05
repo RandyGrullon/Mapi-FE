@@ -25,11 +25,6 @@ export const DraftManager = () => {
     if (wizardState.selectedServices.length > 0 && !wizardState.completed) {
       // Guardar inmediatamente
       saveDraft();
-      console.log("Draft saved:", {
-        services: wizardState.selectedServices,
-        modules: wizardState.activeModules.length,
-        currentModule: wizardState.currentModuleIndex,
-      });
     }
   }, [
     wizardState.selectedServices,
@@ -48,13 +43,11 @@ export const DraftManager = () => {
       !isAutoSaveEnabled
     ) {
       enableAutoSave();
-      console.log("Auto-save enabled");
     }
 
     // Deshabilitar auto-save cuando el wizard se completa
     if (wizardState.completed && isAutoSaveEnabled) {
       disableAutoSave();
-      console.log("Auto-save disabled - wizard completed");
     }
 
     // Cleanup al desmontar

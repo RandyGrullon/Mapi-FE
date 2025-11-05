@@ -15,6 +15,7 @@ import { ActivitiesTab } from "../tabs/ActivitiesTab";
 import { BudgetTab } from "../tabs/BudgetTab";
 import { CarTab } from "../tabs/CarTab";
 import { BackButton, ShareButton, TabButton } from "../buttons";
+import { NotificationIcon } from "../notifications/NotificationIcon";
 
 interface TripDetailPageProps {
   trip: CompletedTrip;
@@ -27,10 +28,15 @@ export const TripDetailPage = ({ trip }: TripDetailPageProps) => {
   >("overview");
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [isClient, setIsClient] = useState(false);
+  const [currentTrip, setCurrentTrip] = useState(trip);
 
   useEffect(() => {
     setIsClient(true);
   }, []);
+
+  useEffect(() => {
+    setCurrentTrip(trip);
+  }, [trip]);
 
   const handleShareClick = useCallback(() => {
     setIsShareModalOpen(true);
@@ -39,6 +45,21 @@ export const TripDetailPage = ({ trip }: TripDetailPageProps) => {
   const handleTabClick = useCallback((tabId: string) => {
     setActiveTab(tabId as any);
   }, []);
+
+  const handleRemoveParticipant = useCallback(
+    (participantId: string) => {
+      const updatedParticipants = (currentTrip.participants || []).filter(
+        (p) => p.id !== participantId
+      );
+      const updatedTrip = {
+        ...currentTrip,
+        participants: updatedParticipants,
+      };
+      CompletedTripsManager.saveTrip(updatedTrip);
+      setCurrentTrip(updatedTrip);
+    },
+    [currentTrip]
+  );
 
   const openGoogleMaps = (location: string) => {
     const query = encodeURIComponent(location);
@@ -99,7 +120,9 @@ export const TripDetailPage = ({ trip }: TripDetailPageProps) => {
     { id: "overview", label: "Resumen", icon: "📋" },
     { id: "flights", label: "Vuelos", icon: "✈️" },
     { id: "hotel", label: "Hotel", icon: "🏨" },
-    ...(trip.carRental ? [{ id: "car", label: "Auto", icon: "🚗" }] : []),
+    ...(currentTrip.carRental
+      ? [{ id: "car", label: "Auto", icon: "🚗" }]
+      : []),
     { id: "activities", label: "Actividades", icon: "🎯" },
     // { id: "itinerary", label: "Itinerario", icon: "📅" }, // Comentado para MVP
     { id: "budget", label: "Presupuesto", icon: "💰" },
@@ -119,18 +142,19 @@ export const TripDetailPage = ({ trip }: TripDetailPageProps) => {
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-3 mb-2 flex-wrap">
                 <h1 className="text-2xl md:text-3xl font-bold text-gray-900 break-words">
-                  {trip.name}
+                  {currentTrip.name}
                 </h1>
-                {getStatusBadge(trip.status)}
+                {getStatusBadge(currentTrip.status)}
               </div>
               <p className="text-gray-600 text-sm">
-                {formatDate(trip.startDate)} - {formatDate(trip.endDate)}
+                {formatDate(currentTrip.startDate)} -{" "}
+                {formatDate(currentTrip.endDate)}
               </p>
               <div className="flex items-center gap-4 mt-2 flex-wrap">
                 <p className="text-gray-500 text-sm flex items-center gap-1">
-                  <span>{trip.travelType === "solo" ? "🚶" : "👥"}</span>
-                  {trip.travelers}{" "}
-                  {trip.travelers === 1 ? "viajero" : "viajeros"}
+                  <span>{currentTrip.travelType === "solo" ? "🚶" : "👥"}</span>
+                  {currentTrip.travelers}{" "}
+                  {currentTrip.travelers === 1 ? "viajero" : "viajeros"}
                   {trip.travelType === "group" &&
                     trip.participants &&
                     trip.participants.length > 1 && (
@@ -143,6 +167,7 @@ export const TripDetailPage = ({ trip }: TripDetailPageProps) => {
               </div>
             </div>
             <div className="flex gap-2 flex-shrink-0 self-start">
+              <NotificationIcon />
               <ShareButton
                 onClick={handleShareClick}
                 showLabelOnMobile={true}
@@ -175,60 +200,67 @@ export const TripDetailPage = ({ trip }: TripDetailPageProps) => {
         <div className="max-w-7xl mx-auto p-6">
           {activeTab === "overview" && (
             <OverviewTab
-              trip={trip}
+              trip={currentTrip}
               openGoogleMaps={openGoogleMaps}
               setActiveTab={setActiveTab}
+              onInviteParticipants={handleShareClick}
+              onRemoveParticipant={handleRemoveParticipant}
             />
           )}
           {activeTab === "flights" && (
-            <FlightsTab trip={trip} status={trip.status} isClient={isClient} />
+            <FlightsTab
+              trip={currentTrip}
+              status={currentTrip.status}
+              isClient={isClient}
+            />
           )}
           {activeTab === "hotel" && (
             <HotelTab
-              trip={trip}
-              status={trip.status}
+              trip={currentTrip}
+              status={currentTrip.status}
               openGoogleMaps={openGoogleMaps}
               isClient={isClient}
             />
           )}
-          {activeTab === "car" && trip.carRental && (
+          {activeTab === "car" && currentTrip.carRental && (
             <CarTab
-              carRental={trip.carRental}
-              status={trip.status}
+              carRental={currentTrip.carRental}
+              status={currentTrip.status}
               openGoogleMaps={openGoogleMaps}
               isClient={isClient}
             />
           )}
           {activeTab === "activities" && (
             <ActivitiesTab
-              trip={trip}
-              status={trip.status}
+              trip={currentTrip}
+              status={currentTrip.status}
               openGoogleMaps={openGoogleMaps}
               isClient={isClient}
             />
           )}
           {/* {activeTab === "itinerary" && (
             <ItineraryTab
-              trip={trip}
-              status={trip.status}
+              trip={currentTrip}
+              status={currentTrip.status}
               openGoogleMaps={openGoogleMaps}
             />
           )} */}
-          {activeTab === "budget" && <BudgetTab trip={trip} />}
+          {activeTab === "budget" && <BudgetTab trip={currentTrip} />}
         </div>
       </div>
 
       {/* Share Modal */}
       <ShareModal
         isOpen={isShareModalOpen}
-        trip={trip}
+        trip={currentTrip}
         onClose={() => setIsShareModalOpen(false)}
         onAddParticipant={(participant) => {
           const updatedTrip = {
-            ...trip,
-            participants: [...(trip.participants || []), participant],
+            ...currentTrip,
+            participants: [...(currentTrip.participants || []), participant],
           };
           CompletedTripsManager.saveTrip(updatedTrip);
+          setCurrentTrip(updatedTrip);
         }}
       />
 

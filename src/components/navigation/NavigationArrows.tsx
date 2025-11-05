@@ -1,6 +1,6 @@
 "use client";
 
-import { WizardStep } from "./WizardProvider";
+import { WizardStep } from "../wizard/WizardProvider";
 
 interface NavigationArrowsProps {
   currentStepIndex: number;

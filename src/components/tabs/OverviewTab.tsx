@@ -2,6 +2,7 @@
 
 import { CompletedTrip } from "../trips/CompletedTripsManager";
 import { CardButton } from "../buttons";
+import { TripParticipants } from "../trips/TripParticipants";
 
 interface OverviewTabProps {
   trip: CompletedTrip;
@@ -9,15 +10,28 @@ interface OverviewTabProps {
   setActiveTab: (
     tab: "overview" | "flights" | "hotel" | "car" | "activities" | "budget"
   ) => void;
+  onInviteParticipants?: () => void;
+  onRemoveParticipant?: (participantId: string) => void;
 }
 
 export const OverviewTab = ({
   trip,
   openGoogleMaps,
   setActiveTab,
+  onInviteParticipants,
+  onRemoveParticipant,
 }: OverviewTabProps) => {
   return (
     <div className="space-y-8 animate-fade-in">
+      {/* Trip Participants Section - Solo mostrar si hay más de 1 viajero */}
+      {trip.travelers > 1 && (
+        <TripParticipants
+          trip={trip}
+          onInviteClick={() => onInviteParticipants?.()}
+          onRemoveParticipant={onRemoveParticipant}
+        />
+      )}
+
       {/* Trip Overview Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <CardButton

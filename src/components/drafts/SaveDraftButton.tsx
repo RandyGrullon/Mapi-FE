@@ -29,7 +29,6 @@ export const SaveDraftButton = ({
     }
 
     const draftId = saveDraft();
-    console.log("Draft saved manually:", draftId);
 
     if (onSaveSuccess) {
       onSaveSuccess(

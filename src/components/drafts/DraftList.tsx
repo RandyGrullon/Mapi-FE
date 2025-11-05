@@ -28,19 +28,10 @@ export const DraftList = ({
   const { drafts } = useDraftStore();
   const [isExpanded, setIsExpanded] = useState(true);
 
-  // Debug: ver drafts en consola
-  useEffect(() => {
-    console.log("DraftList - Total drafts:", drafts.length);
-    console.log("DraftList - Drafts:", drafts);
-  }, [drafts]);
-
-  // Mostrar sección incluso si no hay drafts (para debugging)
-  // if (drafts.length === 0) return null;
+  // Ocultar sección si no hay drafts
+  if (drafts.length === 0) return null;
 
   if (isCollapsed) {
-    // En modo colapsado, no mostrar si no hay drafts
-    if (drafts.length === 0) return null;
-
     return (
       <div className="flex-shrink-0">
         <div className="space-y-2">
@@ -106,12 +97,6 @@ export const DraftList = ({
               onEditName={(e) => onEditDraftName(draft, e)}
             />
           ))}
-
-          {drafts.length === 0 && (
-            <div className="text-center py-6 text-gray-400 text-sm">
-              No hay borradores guardados
-            </div>
-          )}
         </div>
       )}
     </div>

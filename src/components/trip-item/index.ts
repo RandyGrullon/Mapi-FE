@@ -1,8 +1,7 @@
-export { TripItem } from "../TripItem";
-export { CollapsedTripItem } from "../CollapsedTripItem";
-export { ExpandedTripItem } from "../ExpandedTripItem";
-export { TripStatusIndicator } from "../TripStatusIndicator";
-export { TripTooltip } from "../TripTooltip";
-export { TripActionButtons } from "../TripActionButtons";
-export { TripContent } from "../TripContent";
-export * from "../trip-item-utils";
+export { TripItem } from "../trips/TripItem";
+export { CollapsedTripItem } from "../trips/CollapsedTripItem";
+export { ExpandedTripItem } from "../trips/ExpandedTripItem";
+export { TripStatusIndicator } from "../trips/TripStatusIndicator";
+export { TripTooltip } from "../trips/TripTooltip";
+export { TripActionButtons } from "../trips/TripActionButtons";
+export { TripContent } from "../trips/TripContent";
