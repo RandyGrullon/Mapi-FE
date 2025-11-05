@@ -96,7 +96,9 @@ export const TravelPackagesPage = ({ travelInfo }: TravelPackagesPageProps) => {
 
     const flight = flights.find((f) => f.id === selectedFlight);
     const hotel = hotels.find((h) => h.id === selectedHotel);
-    const car = selectedCar ? cars.find((c) => c.id === selectedCar) : undefined;
+    const car = selectedCar
+      ? cars.find((c) => c.id === selectedCar)
+      : undefined;
     const selectedActivitiesList = activities.filter((a) =>
       selectedActivities.includes(a.id)
     );

@@ -79,7 +79,10 @@ export const PackagesView = ({ packages, onSelect }: PackagesViewProps) => {
                           {pkg.carRental.company} • ⭐ {pkg.carRental.rating}/5
                         </p>
                         <p className="text-xs text-gray-400">
-                          {pkg.carRental.totalDays} días • {pkg.carRental.transmission === "automatic" ? "Automático" : "Manual"}
+                          {pkg.carRental.totalDays} días •{" "}
+                          {pkg.carRental.transmission === "automatic"
+                            ? "Automático"
+                            : "Manual"}
                         </p>
                       </div>
                     </div>
@@ -223,7 +226,8 @@ export const PackagesView = ({ packages, onSelect }: PackagesViewProps) => {
                           {pkg.carRental.carModel}
                         </p>
                         <p className="text-xs text-gray-500">
-                          {pkg.carRental.company} • {pkg.carRental.totalDays} días
+                          {pkg.carRental.company} • {pkg.carRental.totalDays}{" "}
+                          días
                         </p>
                       </div>
                     </div>

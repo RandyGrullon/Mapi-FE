@@ -152,7 +152,9 @@ export const CarTab = ({
           </div>
           <div className="bg-white rounded-lg p-3">
             <p className="text-xs text-gray-600">Seguro</p>
-            <p className="font-bold">{carRental.insurance ? "Incluido" : "No"}</p>
+            <p className="font-bold">
+              {carRental.insurance ? "Incluido" : "No"}
+            </p>
           </div>
         </div>
 

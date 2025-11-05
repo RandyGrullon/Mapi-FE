@@ -393,7 +393,11 @@ export class CompletedTripsManager {
       total: 0,
     };
     budget.total =
-      budget.flights + budget.hotel + budget.carRental + budget.activities + budget.extras;
+      budget.flights +
+      budget.hotel +
+      budget.carRental +
+      budget.activities +
+      budget.extras;
 
     const trip: CompletedTrip = {
       id,

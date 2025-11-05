@@ -75,7 +75,7 @@ export const SummaryView = () => {
     // Limpiar el borrador actual (sin eliminarlo, solo desvincularlo)
     DraftManager.clearCurrentDraft();
     setCurrentDraftId(null);
-    
+
     // Resetear el wizard para empezar desde cero
     resetWizard();
   };

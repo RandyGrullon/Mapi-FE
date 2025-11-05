@@ -9,12 +9,7 @@ interface CarsViewProps {
   days: number;
 }
 
-export const CarsView = ({
-  cars,
-  selected,
-  onToggle,
-  days,
-}: CarsViewProps) => {
+export const CarsView = ({ cars, selected, onToggle, days }: CarsViewProps) => {
   return (
     <div>
       <div className="mb-6 p-4 bg-indigo-50 border border-indigo-200 rounded-lg">
@@ -81,7 +76,9 @@ export const CarsView = ({
                   </p>
                   <div className="flex flex-wrap gap-1">
                     <span className="text-xs bg-indigo-100 text-indigo-700 px-2 py-1 rounded capitalize">
-                      {car.transmission === "automatic" ? "Automático" : "Manual"}
+                      {car.transmission === "automatic"
+                        ? "Automático"
+                        : "Manual"}
                     </span>
                     {car.features.slice(0, 2).map((feature, idx) => (
                       <span
@@ -97,9 +94,7 @@ export const CarsView = ({
                 <div className="border-t border-gray-100 pt-4">
                   <div className="flex items-end justify-between">
                     <div>
-                      <p className="text-xs text-gray-500">
-                        Por {days} días
-                      </p>
+                      <p className="text-xs text-gray-500">Por {days} días</p>
                       <p className="text-2xl font-bold text-indigo-600">
                         ${car.totalPrice}
                       </p>

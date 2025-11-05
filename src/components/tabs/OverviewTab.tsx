@@ -139,7 +139,11 @@ export const OverviewTab = ({
         </div>
 
         <div className="p-6">
-          <div className={`grid grid-cols-2 ${trip.carRental ? 'md:grid-cols-5' : 'md:grid-cols-4'} gap-6`}>
+          <div
+            className={`grid grid-cols-2 ${
+              trip.carRental ? "md:grid-cols-5" : "md:grid-cols-4"
+            } gap-6`}
+          >
             <div className="text-center">
               <div className="flex items-center justify-center mb-2">
                 <span className="text-2xl mr-2">✈️</span>

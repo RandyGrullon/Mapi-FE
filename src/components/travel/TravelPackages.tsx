@@ -150,9 +150,10 @@ export const TravelPackages = ({
 
     const flight = flights.find((f) => f.id === selectedFlights[0])!;
     const hotel = hotels.find((h) => h.id === selectedHotels[0])!;
-    const selectedCar = selectedCars.length > 0 
-      ? cars.find((c) => c.id === selectedCars[0])
-      : undefined;
+    const selectedCar =
+      selectedCars.length > 0
+        ? cars.find((c) => c.id === selectedCars[0])
+        : undefined;
     const selectedActivitiesList = activities.filter((a) =>
       selectedActivities.includes(a.id)
     );
@@ -293,7 +294,8 @@ export const TravelPackages = ({
                   <span className="font-medium">Seleccionado:</span>
                   <span className="ml-2 text-gray-600">
                     {selectedFlights.length} vuelos • {selectedHotels.length}{" "}
-                    hoteles • {selectedCars.length} autos • {selectedActivities.length} actividades
+                    hoteles • {selectedCars.length} autos •{" "}
+                    {selectedActivities.length} actividades
                   </span>
                 </div>
               </div>
@@ -401,7 +403,9 @@ const PackagesView = ({
                   <span className="text-lg">🚗</span>
                   <span className="font-bold text-sm">Renta de Auto</span>
                 </div>
-                <p className="text-sm text-gray-700">{pkg.carRental.carModel}</p>
+                <p className="text-sm text-gray-700">
+                  {pkg.carRental.carModel}
+                </p>
                 <p className="text-xs text-gray-600">
                   {pkg.carRental.company} • {pkg.carRental.totalDays} días
                 </p>
@@ -691,9 +695,7 @@ const CarsView = ({
               <p className="text-2xl font-bold text-indigo-600">
                 ${car.totalPrice}
               </p>
-              <p className="text-xs text-gray-500">
-                ${car.pricePerDay}/día
-              </p>
+              <p className="text-xs text-gray-500">${car.pricePerDay}/día</p>
             </div>
           </div>
         );
@@ -982,7 +984,7 @@ function generateActivities(travelInfo: TravelInfo): Activity[] {
 
 function generateCars(travelInfo: TravelInfo): CarRental[] {
   const days = parseInt(travelInfo.duration) || 5;
-  
+
   return [
     {
       id: "car-1",
@@ -1046,7 +1048,13 @@ function generateCars(travelInfo: TravelInfo): CarRental[] {
       pricePerDay: 120,
       totalDays: days,
       totalPrice: 120 * days,
-      features: ["A/C", "GPS", "Asientos de cuero", "Bluetooth", "Premium sound"],
+      features: [
+        "A/C",
+        "GPS",
+        "Asientos de cuero",
+        "Bluetooth",
+        "Premium sound",
+      ],
       rating: 4.9,
     },
     {

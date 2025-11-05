@@ -265,7 +265,7 @@ export function generateActivities(travelInfo: TravelInfo): Activity[] {
 
 export function generateCars(travelInfo: TravelInfo): CarRental[] {
   const days = parseInt(travelInfo.duration) || 5;
-  
+
   return [
     {
       id: "car-1",
@@ -329,7 +329,13 @@ export function generateCars(travelInfo: TravelInfo): CarRental[] {
       pricePerDay: 120,
       totalDays: days,
       totalPrice: 120 * days,
-      features: ["A/C", "GPS", "Asientos de cuero", "Bluetooth", "Premium sound"],
+      features: [
+        "A/C",
+        "GPS",
+        "Asientos de cuero",
+        "Bluetooth",
+        "Premium sound",
+      ],
       rating: 4.9,
     },
     {

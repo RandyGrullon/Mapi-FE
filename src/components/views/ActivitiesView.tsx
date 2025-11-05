@@ -24,7 +24,8 @@ export const ActivitiesView = ({
         </p>
         {selected.length > 0 && (
           <p className="text-xs text-gray-600 mt-1.5 font-medium">
-            {selected.length} actividad{selected.length !== 1 ? 'es' : ''} seleccionada{selected.length !== 1 ? 's' : ''}
+            {selected.length} actividad{selected.length !== 1 ? "es" : ""}{" "}
+            seleccionada{selected.length !== 1 ? "s" : ""}
           </p>
         )}
       </div>
