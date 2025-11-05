@@ -1,13 +1,28 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { TravelPackage } from "../data/travel-data";
 
 interface PackagesViewProps {
   packages: TravelPackage[];
-  onSelect: (pkg: TravelPackage) => void;
+  onSelect?: (pkg: TravelPackage) => void;
 }
 
 export const PackagesView = ({ packages, onSelect }: PackagesViewProps) => {
+  const router = useRouter();
+
+  const handleViewDetails = (pkg: TravelPackage) => {
+    // Guardar el paquete en localStorage para acceder desde la página de detalles
+    localStorage.setItem(`package-${pkg.id}`, JSON.stringify(pkg));
+    // Redirigir a la página de detalles
+    router.push(`/packages/${pkg.id}`);
+  };
+
+  const handleSelect = (pkg: TravelPackage) => {
+    if (onSelect) {
+      onSelect(pkg);
+    }
+  };
   return (
     <div>
       {/* Paquete recomendado destacado */}
@@ -120,12 +135,20 @@ export const PackagesView = ({ packages, onSelect }: PackagesViewProps) => {
                     ✓ Ahorra ${pkg.savings}
                   </p>
 
-                  <button
-                    onClick={() => onSelect(pkg)}
-                    className="w-full py-3 bg-white text-gray-900 rounded-lg font-semibold hover:bg-gray-100 transition-all text-sm"
-                  >
-                    Reservar Ahora
-                  </button>
+                  <div className="space-y-2">
+                    <button
+                      onClick={() => handleViewDetails(pkg)}
+                      className="w-full py-3 bg-gray-700 text-white rounded-lg font-semibold hover:bg-gray-600 transition-all text-sm"
+                    >
+                      Ver Detalles
+                    </button>
+                    <button
+                      onClick={() => handleSelect(pkg)}
+                      className="w-full py-3 bg-white text-gray-900 rounded-lg font-semibold hover:bg-gray-100 transition-all text-sm"
+                    >
+                      Reservar Ahora
+                    </button>
+                  </div>
                 </div>
 
                 <div className="mt-4 space-y-2 text-xs text-gray-400">
@@ -184,8 +207,7 @@ export const PackagesView = ({ packages, onSelect }: PackagesViewProps) => {
           .map((pkg) => (
             <div
               key={pkg.id}
-              className="bg-white rounded-xl border-2 border-gray-200 hover:border-gray-400 hover:shadow-md transition-all overflow-hidden group cursor-pointer"
-              onClick={() => onSelect(pkg)}
+              className="bg-white rounded-xl border-2 border-gray-200 hover:border-gray-400 hover:shadow-md transition-all overflow-hidden group"
             >
               <div className="p-6">
                 <h3 className="text-lg font-bold text-gray-900 mb-2">
@@ -243,20 +265,33 @@ export const PackagesView = ({ packages, onSelect }: PackagesViewProps) => {
                   </div>
                 </div>
 
-                <div className="border-t border-gray-200 pt-4 flex items-center justify-between">
-                  <div>
-                    {pkg.savings > 0 && (
-                      <p className="text-xs text-gray-600 font-medium mb-1">
-                        Ahorra ${pkg.savings}
+                <div className="border-t border-gray-200 pt-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <div>
+                      {pkg.savings > 0 && (
+                        <p className="text-xs text-gray-600 font-medium mb-1">
+                          Ahorra ${pkg.savings}
+                        </p>
+                      )}
+                      <p className="text-2xl font-bold text-gray-900">
+                        ${pkg.totalPrice.toLocaleString()}
                       </p>
-                    )}
-                    <p className="text-2xl font-bold text-gray-900">
-                      ${pkg.totalPrice.toLocaleString()}
-                    </p>
+                    </div>
                   </div>
-                  <button className="px-5 py-2 bg-gray-900 text-white rounded-lg text-sm font-semibold hover:bg-gray-800 transition-all shadow-sm hover:shadow">
-                    Seleccionar
-                  </button>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => handleViewDetails(pkg)}
+                      className="flex-1 px-4 py-2 bg-gray-100 text-gray-900 rounded-lg text-sm font-semibold hover:bg-gray-200 transition-all"
+                    >
+                      Ver Detalles
+                    </button>
+                    <button
+                      onClick={() => handleSelect(pkg)}
+                      className="flex-1 px-4 py-2 bg-gray-900 text-white rounded-lg text-sm font-semibold hover:bg-gray-800 transition-all shadow-sm hover:shadow"
+                    >
+                      Seleccionar
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>

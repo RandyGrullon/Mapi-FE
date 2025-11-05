@@ -8,7 +8,6 @@ import {
   useEffect,
 } from "react";
 import { usePathname } from "next/navigation";
-import { DraftManager } from "../drafts/DraftManager";
 
 export type WizardStep = {
   id: string;
@@ -50,12 +49,10 @@ interface WizardContextType {
   ) => void;
   goToStep: (index: number) => void;
   resetWizard: () => void;
-  loadDraft: (draftId: string) => void;
   isLastStep: boolean;
   userInput: string;
   setUserInput: (input: string) => void;
   travelInfo: TravelInfo;
-  currentDraftId: string | null;
   allStepsCompleted: boolean;
 }
 
@@ -161,7 +158,6 @@ export const WizardProvider = ({ children }: { children: ReactNode }) => {
   ]);
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
   const [userInput, setUserInput] = useState("");
-  const [currentDraftId, setCurrentDraftId] = useState<string | null>(null);
 
   // Objeto para almacenar toda la información del viaje
   const [travelInfo, setTravelInfo] = useState<TravelInfo>({
@@ -178,49 +174,6 @@ export const WizardProvider = ({ children }: { children: ReactNode }) => {
   });
 
   const pathname = usePathname();
-
-  // Limpiar currentDraftId cuando no estamos en el wizard
-  useEffect(() => {
-    if (pathname !== "/plan" && currentDraftId) {
-      setCurrentDraftId(null);
-    }
-  }, [pathname, currentDraftId]);
-
-  // Auto-guardar draft cuando hay cambios
-  useEffect(() => {
-    // Solo auto-guardar si hay progreso (al menos un paso completado, datos ingresados, o input actual)
-    const hasProgress =
-      steps.some((s) => s.completed) ||
-      travelInfo.origin ||
-      travelInfo.destination ||
-      travelInfo.startDate ||
-      travelInfo.endDate ||
-      userInput.trim().length > 0;
-
-    if (hasProgress) {
-      const draftId = DraftManager.saveDraft(
-        steps,
-        currentStepIndex,
-        travelInfo,
-        currentDraftId || undefined
-      );
-      setCurrentDraftId(draftId);
-    }
-  }, [steps, currentStepIndex, travelInfo, userInput]);
-
-  // Cargar draft al iniciar si existe uno activo
-  useEffect(() => {
-    const activeDraftId = DraftManager.getCurrentDraftId();
-    if (activeDraftId) {
-      const draft = DraftManager.getDraft(activeDraftId);
-      if (draft) {
-        setSteps(draft.steps);
-        setCurrentStepIndex(draft.currentStepIndex);
-        setTravelInfo(draft.travelInfo);
-        setCurrentDraftId(draft.id);
-      }
-    }
-  }, []);
 
   // Ya no necesitamos addStep porque todos los pasos están predefinidos
 
@@ -415,20 +368,6 @@ export const WizardProvider = ({ children }: { children: ReactNode }) => {
       budget: "",
       organizedActivities: false,
     });
-    // Limpiar draft actual
-    DraftManager.clearCurrentDraft();
-    setCurrentDraftId(null);
-  };
-
-  const loadDraft = (draftId: string) => {
-    const draft = DraftManager.getDraft(draftId);
-    if (draft) {
-      setSteps(draft.steps);
-      setCurrentStepIndex(draft.currentStepIndex);
-      setTravelInfo(draft.travelInfo);
-      setCurrentDraftId(draft.id);
-      DraftManager.setCurrentDraftId(draft.id);
-    }
   };
 
   return (
@@ -440,12 +379,10 @@ export const WizardProvider = ({ children }: { children: ReactNode }) => {
         completeCurrentStepWithMultipleFields,
         goToStep,
         resetWizard,
-        loadDraft,
         isLastStep: currentStepIndex === steps.length - 1,
         userInput,
         setUserInput,
         travelInfo,
-        currentDraftId,
         allStepsCompleted: steps.every((step) => step.completed),
       }}
     >

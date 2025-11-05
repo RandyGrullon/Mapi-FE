@@ -4,7 +4,6 @@ import { useState } from "react";
 import { TravelInfo } from "../wizard/WizardProvider";
 import { useNavigation } from "../navigation/NavigationContext";
 import { CompletedTripsManager } from "../trips/CompletedTripsManager";
-import { DraftManager } from "../drafts/DraftManager";
 import { Toast, ToastType } from "../ui/Toast";
 import { useTravelSelections } from "./useTravelSelections";
 import { TravelHeader } from "../ui/TravelHeader";
@@ -72,13 +71,6 @@ export const TravelPackagesPage = ({ travelInfo }: TravelPackagesPageProps) => {
     const demoTrip = CompletedTripsManager.createDemoTrip(travelInfo);
     CompletedTripsManager.saveTrip(demoTrip);
 
-    // Eliminar el draft correspondiente si existe
-    const currentDraftId = localStorage.getItem("currentDraftId");
-    if (currentDraftId) {
-      DraftManager.deleteDraft(currentDraftId);
-      localStorage.removeItem("currentDraftId");
-    }
-
     showToast(
       "¡Paquete reservado exitosamente! Preparando tu viaje...",
       "success"
@@ -111,13 +103,6 @@ export const TravelPackagesPage = ({ travelInfo }: TravelPackagesPageProps) => {
     // Crear el viaje personalizado con itinerario basado en actividades
     const demoTrip = CompletedTripsManager.createDemoTrip(travelInfo);
     CompletedTripsManager.saveTrip(demoTrip);
-
-    // Eliminar el draft correspondiente si existe
-    const currentDraftId = localStorage.getItem("currentDraftId");
-    if (currentDraftId) {
-      DraftManager.deleteDraft(currentDraftId);
-      localStorage.removeItem("currentDraftId");
-    }
 
     const activitiesText =
       selectedActivitiesList.length > 0

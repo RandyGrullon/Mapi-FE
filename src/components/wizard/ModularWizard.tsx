@@ -20,7 +20,6 @@ import { HotelModule } from "./modules/HotelModule";
 import { CarModule } from "./modules/CarModule";
 import { ActivitiesModule } from "./modules/ActivitiesModule";
 import { SummaryView } from "./SummaryView";
-import { DraftAutoSaver } from "./DraftAutoSaver";
 
 export const ModularWizard = () => {
   const {
@@ -36,24 +35,18 @@ export const ModularWizard = () => {
   // Si no hay servicios seleccionados, mostrar selección inicial
   if (currentModuleIndex === -1) {
     return (
-      <>
-        <DraftAutoSaver />
-        <div className="flex-1 flex items-center justify-center p-6">
-          <ServiceSelectionStep />
-        </div>
-      </>
+      <div className="flex-1 flex items-center justify-center p-6">
+        <ServiceSelectionStep />
+      </div>
     );
   }
 
   // Si está completado, mostrar resumen
   if (completed) {
     return (
-      <>
-        <DraftAutoSaver />
-        <div className="flex-1 overflow-y-auto p-6">
-          <SummaryView />
-        </div>
-      </>
+      <div className="flex-1 overflow-y-auto p-6">
+        <SummaryView />
+      </div>
     );
   }
 
@@ -145,42 +138,38 @@ export const ModularWizard = () => {
   };
 
   return (
-    <>
-      <DraftAutoSaver />
-      <div className="flex-1 flex flex-col overflow-hidden">
-        {/* Progress Indicator */}
-        <div className="bg-white border-b border-gray-200 px-6 py-4">
-          <div className="max-w-4xl mx-auto">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-medium text-gray-600">
-                Módulo {currentModuleIndex + 1} de {activeModules.length}
-              </span>
-              <span className="text-sm text-gray-500">
-                Paso {currentModule.currentStep + 1} de{" "}
-                {currentModule.totalSteps}
-              </span>
-            </div>
-            <div className="w-full bg-gray-200 rounded-full h-2">
-              <div
-                className="bg-black h-2 rounded-full transition-all duration-300"
-                style={{
-                  width: `${
-                    (currentModuleIndex * 100 +
-                      (currentModule.currentStep / currentModule.totalSteps) *
-                        100) /
-                    activeModules.length
-                  }%`,
-                }}
-              />
-            </div>
+    <div className="flex-1 flex flex-col overflow-hidden">
+      {/* Progress Indicator */}
+      <div className="bg-white border-b border-gray-200 px-6 py-4">
+        <div className="max-w-4xl mx-auto">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-sm font-medium text-gray-600">
+              Módulo {currentModuleIndex + 1} de {activeModules.length}
+            </span>
+            <span className="text-sm text-gray-500">
+              Paso {currentModule.currentStep + 1} de {currentModule.totalSteps}
+            </span>
+          </div>
+          <div className="w-full bg-gray-200 rounded-full h-2">
+            <div
+              className="bg-black h-2 rounded-full transition-all duration-300"
+              style={{
+                width: `${
+                  (currentModuleIndex * 100 +
+                    (currentModule.currentStep / currentModule.totalSteps) *
+                      100) /
+                  activeModules.length
+                }%`,
+              }}
+            />
           </div>
         </div>
-
-        {/* Module Content */}
-        <div className="flex-1 overflow-y-auto p-6 flex items-start justify-center">
-          {renderModule()}
-        </div>
       </div>
-    </>
+
+      {/* Module Content */}
+      <div className="flex-1 overflow-y-auto p-6 flex items-start justify-center">
+        {renderModule()}
+      </div>
+    </div>
   );
 };

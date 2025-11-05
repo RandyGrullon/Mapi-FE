@@ -76,7 +76,6 @@ const initialState = {
   completed: false,
   canGoBack: false,
   canGoNext: false,
-  currentDraftId: null,
 };
 
 // ========== STORE ==========
@@ -324,14 +323,5 @@ export const useWizardStore = create<WizardStore>((set, get) => ({
   // ========== RESETEAR WIZARD ==========
   resetWizard: () => {
     set(initialState);
-  },
-
-  // ========== MANEJAR DRAFTS ==========
-  setCurrentDraftId: (draftId: string | null) => {
-    set({ currentDraftId: draftId });
-  },
-
-  loadDraftState: (state: Partial<WizardStore>) => {
-    set(state);
   },
 }));

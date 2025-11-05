@@ -131,9 +131,6 @@ export interface WizardState {
   // Navegación
   canGoBack: boolean;
   canGoNext: boolean;
-
-  // Draft actual
-  currentDraftId: string | null;
 }
 
 // ========== ACCIONES DEL WIZARD ==========
@@ -166,10 +163,6 @@ export interface WizardActions {
 
   // Agregar módulo ya completado
   addCompletedModule: (serviceType: ServiceType, data: ModuleData) => void;
-
-  // Manejar drafts
-  setCurrentDraftId: (draftId: string | null) => void;
-  loadDraftState: (state: Partial<WizardState>) => void;
 }
 
 // ========== STORE COMPLETO ==========

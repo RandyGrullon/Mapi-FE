@@ -15,8 +15,6 @@ import { useNavigation } from "../navigation/NavigationContext";
 
 export const WizardContent = () => {
   const { isCollapsed } = useSidebar();
-  const { currentDraftId } = useWizard();
-  const { navigateToDrafts } = useNavigation();
   const {
     steps,
     currentStepIndex,
@@ -60,33 +58,6 @@ export const WizardContent = () => {
 
   return (
     <div className="flex-1 flex flex-col overflow-hidden">
-      {/* Botón para salir cuando se edita un borrador */}
-      {currentDraftId && (
-        <div className="p-4 md:p-6 pb-0">
-          <button
-            onClick={navigateToDrafts}
-            className="flex items-center gap-2 text-gray-600 hover:text-gray-800 transition-colors"
-          >
-            <svg
-              className="w-5 h-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M15 19l-7-7 7-7"
-              />
-            </svg>
-            <span className="text-sm font-medium">
-              Ver todos los borradores
-            </span>
-          </button>
-        </div>
-      )}
-
       <div
         ref={contentRef}
         className={`flex-1 overflow-y-auto p-4 md:p-6 transition-all duration-300 ${

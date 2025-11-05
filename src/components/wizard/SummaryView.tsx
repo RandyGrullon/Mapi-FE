@@ -16,7 +16,6 @@ import {
   FlightType,
 } from "@/types/wizard";
 import { useWizardStore } from "@/stores/wizardStore";
-import { DraftManager } from "../drafts/DraftManager";
 
 export const SummaryView = () => {
   const {
@@ -25,7 +24,6 @@ export const SummaryView = () => {
     goToModule,
     addModule,
     updateModuleData,
-    setCurrentDraftId,
   } = useWizardStore();
   const router = useRouter();
 
@@ -72,10 +70,6 @@ export const SummaryView = () => {
   };
 
   const handleStartOver = () => {
-    // Limpiar el borrador actual (sin eliminarlo, solo desvincularlo)
-    DraftManager.clearCurrentDraft();
-    setCurrentDraftId(null);
-
     // Resetear el wizard para empezar desde cero
     resetWizard();
   };

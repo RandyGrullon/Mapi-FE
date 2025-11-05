@@ -41,6 +41,16 @@ body {
   background: rgba(0, 0, 0, 0.3);
 }
 
+/* Ocultar scrollbar pero mantener funcionalidad */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
 /* Animaciones personalizadas */
 @keyframes fadeIn {
   from {
