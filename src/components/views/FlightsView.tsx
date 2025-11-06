@@ -1,6 +1,6 @@
 "use client";
 
-import { Flight } from "../data/travel-data";
+import { Flight } from "@/types/travel";
 
 interface FlightsViewProps {
   flights: Flight[];
@@ -13,6 +13,38 @@ export const FlightsView = ({
   selected,
   onToggle,
 }: FlightsViewProps) => {
+  // Mostrar mensaje si no hay vuelos
+  if (flights.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center py-16 px-4">
+        <div className="text-center max-w-md">
+          <div className="w-24 h-24 mx-auto mb-6 bg-gray-100 rounded-full flex items-center justify-center">
+            <svg
+              className="w-12 h-12 text-gray-400"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"
+              />
+            </svg>
+          </div>
+          <h3 className="text-2xl font-bold text-gray-900 mb-3">
+            No hay vuelos disponibles
+          </h3>
+          <p className="text-gray-600 mb-6">
+            No encontramos vuelos para tu búsqueda. Por favor, verifica tus
+            fechas y destinos o intenta más tarde.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-4">
       <div className="mb-6 p-4 bg-gray-50 border border-gray-200 rounded-lg">

@@ -1,7 +1,10 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { TravelPackage } from "../data/travel-data";
+import React from "react";
+import { CardButton } from "../buttons";
+import { ActionButton } from "../buttons";
+import { TravelPackage } from "@/types/travel";
 
 interface PackagesViewProps {
   packages: TravelPackage[];
@@ -23,6 +26,39 @@ export const PackagesView = ({ packages, onSelect }: PackagesViewProps) => {
       onSelect(pkg);
     }
   };
+
+  // Mostrar mensaje si no hay paquetes
+  if (packages.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center py-16 px-4">
+        <div className="text-center max-w-md">
+          <div className="w-24 h-24 mx-auto mb-6 bg-gray-100 rounded-full flex items-center justify-center">
+            <svg
+              className="w-12 h-12 text-gray-400"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
+              />
+            </svg>
+          </div>
+          <h3 className="text-2xl font-bold text-gray-900 mb-3">
+            No hay paquetes disponibles
+          </h3>
+          <p className="text-gray-600 mb-6">
+            No encontramos paquetes de viaje para tu búsqueda. Intenta crear un
+            paquete personalizado seleccionando vuelos, hoteles y actividades.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div>
       {/* Paquete recomendado destacado */}

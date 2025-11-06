@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { useSidebar } from "./SidebarContext";
-import { DemoTripsInitializer } from "../data/DemoTripsInitializer";
 import { ConfirmModal } from "../modals/ConfirmModal";
 import { EditTripNameModal } from "../modals/EditTripNameModal";
 import { EditDraftNameModal } from "../modals/EditDraftNameModal";
@@ -75,11 +74,6 @@ export const Sidebar = () => {
   };
 
   const selectedTripId = getSelectedTripId();
-
-  // Inicializar viajes demo una sola vez
-  useEffect(() => {
-    DemoTripsInitializer.createDemoTrips();
-  }, []);
 
   const handleNewWizard = () => {
     // Resetear el wizard para empezar desde cero

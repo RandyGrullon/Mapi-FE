@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { TravelPackage } from "../data/travel-data";
+import { TravelPackage } from "@/types/travel";
 
 interface PackageDetailsViewProps {
   packageData: TravelPackage;

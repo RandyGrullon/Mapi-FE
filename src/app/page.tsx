@@ -2,7 +2,6 @@
 
 import { NavigationProvider } from "@/components/navigation/NavigationContext";
 import { WizardProvider } from "@/components/wizard/WizardProvider";
-import { SidebarProvider } from "@/components/sidebar/SidebarContext";
 import { useNavigation } from "@/components/navigation/NavigationContext";
 
 const HomePage = () => {

@@ -16,13 +16,12 @@ import { HotelsView } from "../views/HotelsView";
 import { CarsView } from "../views/CarsView";
 import { ActivitiesView } from "../views/ActivitiesView";
 import {
-  generatePackages,
-  generateFlights,
-  generateHotels,
-  generateCars,
-  generateActivities,
   TravelPackage,
-} from "../data/travel-data";
+  Flight,
+  Hotel,
+  CarRental,
+  Activity,
+} from "@/types/travel";
 
 interface TravelPackagesPageProps {
   travelInfo: TravelInfo;
@@ -65,11 +64,12 @@ export const TravelPackagesPage = ({ travelInfo }: TravelPackagesPageProps) => {
     setToast((prev) => ({ ...prev, isVisible: false }));
   };
 
-  const packages = generatePackages(travelInfo);
-  const flights = generateFlights(travelInfo);
-  const hotels = generateHotels(travelInfo);
-  const cars = generateCars(travelInfo);
-  const activities = generateActivities(travelInfo);
+  // TODO: Reemplazar con llamada a API real
+  const packages: TravelPackage[] = [];
+  const flights: Flight[] = [];
+  const hotels: Hotel[] = [];
+  const cars: CarRental[] = [];
+  const activities: Activity[] = [];
 
   const handleSelectPackage = (pkg: TravelPackage) => {
     const demoTrip = CompletedTripsManager.createDemoTrip(travelInfo);

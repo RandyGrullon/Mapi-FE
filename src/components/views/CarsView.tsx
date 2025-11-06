@@ -1,6 +1,6 @@
 "use client";
 
-import { CarRental } from "../data/travel-data";
+import { CarRental } from "@/types/travel";
 
 interface CarsViewProps {
   cars: CarRental[];
@@ -10,6 +10,38 @@ interface CarsViewProps {
 }
 
 export const CarsView = ({ cars, selected, onToggle, days }: CarsViewProps) => {
+  // Mostrar mensaje si no hay autos
+  if (cars.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center py-16 px-4">
+        <div className="text-center max-w-md">
+          <div className="w-24 h-24 mx-auto mb-6 bg-indigo-50 rounded-full flex items-center justify-center">
+            <svg
+              className="w-12 h-12 text-indigo-400"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"
+              />
+            </svg>
+          </div>
+          <h3 className="text-2xl font-bold text-gray-900 mb-3">
+            No hay autos de alquiler disponibles
+          </h3>
+          <p className="text-gray-600 mb-6">
+            No encontramos autos para alquilar en tu destino. Este servicio es
+            opcional para tu viaje.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div>
       <div className="mb-6 p-4 bg-indigo-50 border border-indigo-200 rounded-lg">

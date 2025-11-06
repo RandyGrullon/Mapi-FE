@@ -1,6 +1,6 @@
 "use client";
 
-import { Hotel } from "../data/travel-data";
+import { Hotel } from "@/types/travel";
 
 interface HotelsViewProps {
   hotels: Hotel[];
@@ -15,6 +15,38 @@ export const HotelsView = ({
   onToggle,
   nights,
 }: HotelsViewProps) => {
+  // Mostrar mensaje si no hay hoteles
+  if (hotels.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center py-16 px-4">
+        <div className="text-center max-w-md">
+          <div className="w-24 h-24 mx-auto mb-6 bg-gray-100 rounded-full flex items-center justify-center">
+            <svg
+              className="w-12 h-12 text-gray-400"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
+              />
+            </svg>
+          </div>
+          <h3 className="text-2xl font-bold text-gray-900 mb-3">
+            No hay hoteles disponibles
+          </h3>
+          <p className="text-gray-600 mb-6">
+            No encontramos hoteles para tu destino. Por favor, verifica tu
+            búsqueda o intenta más tarde.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div>
       <div className="mb-6 p-4 bg-gray-50 border border-gray-200 rounded-lg">

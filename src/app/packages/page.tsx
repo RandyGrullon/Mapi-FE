@@ -22,8 +22,8 @@ function convertWizardDataToTravelInfo(packageData: any, wizardModules: any) {
   )?.data;
 
   // Extraer origen y destino del vuelo si existe
-  let origin = "Madrid";
-  let destination = "Barcelona";
+  let origin = "";
+  let destination = "";
   let startDate = new Date().toISOString().split("T")[0];
   let endDate = new Date(Date.now() + 5 * 24 * 60 * 60 * 1000)
     .toISOString()
@@ -111,55 +111,12 @@ const PackagesPageLayout = () => {
           wizardData
         );
 
-        // Si la conversión falla, usar datos demo
         if (convertedTravelInfo) {
           setTravelInfo(convertedTravelInfo);
-        } else {
-          setTravelInfo({
-            origin: "Madrid",
-            destination: "Barcelona",
-            startDate: "2025-11-15",
-            endDate: "2025-11-20",
-            travelers: 2,
-            flightPreference: "Económico (más barato)",
-            accommodationType: "Hotel confort (4 estrellas)",
-            activities: ["Cultura e historia", "Gastronomía y restaurantes"],
-            budget: "Moderado ($1,000 - $3,000 USD)",
-            organizedActivities: false,
-            duration: "5",
-          });
         }
-      } else {
-        // Datos demo si no hay datos del wizard
-        setTravelInfo({
-          origin: "Madrid",
-          destination: "Barcelona",
-          startDate: "2025-11-15",
-          endDate: "2025-11-20",
-          travelers: 2,
-          flightPreference: "Económico (más barato)",
-          accommodationType: "Hotel confort (4 estrellas)",
-          activities: ["Cultura e historia", "Gastronomía y restaurantes"],
-          budget: "Moderado ($1,000 - $3,000 USD)",
-          organizedActivities: false,
-          duration: "5",
-        });
       }
     } catch (error) {
-      // Usar datos demo en caso de error
-      setTravelInfo({
-        origin: "Madrid",
-        destination: "Barcelona",
-        startDate: "2025-11-15",
-        endDate: "2025-11-20",
-        travelers: 2,
-        flightPreference: "Económico (más barato)",
-        accommodationType: "Hotel confort (4 estrellas)",
-        activities: ["Cultura e historia", "Gastronomía y restaurantes"],
-        budget: "Moderado ($1,000 - $3,000 USD)",
-        organizedActivities: false,
-        duration: "5",
-      });
+      // Error al cargar datos
     } finally {
       setIsLoading(false);
     }

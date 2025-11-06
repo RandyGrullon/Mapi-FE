@@ -1,6 +1,6 @@
 "use client";
 
-import { Activity } from "../data/travel-data";
+import { Activity } from "@/types/travel";
 
 interface ActivitiesViewProps {
   activities: Activity[];
@@ -13,6 +13,44 @@ export const ActivitiesView = ({
   selected,
   onToggle,
 }: ActivitiesViewProps) => {
+  // Mostrar mensaje si no hay actividades
+  if (activities.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center py-16 px-4">
+        <div className="text-center max-w-md">
+          <div className="w-24 h-24 mx-auto mb-6 bg-gray-100 rounded-full flex items-center justify-center">
+            <svg
+              className="w-12 h-12 text-gray-400"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+              />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+              />
+            </svg>
+          </div>
+          <h3 className="text-2xl font-bold text-gray-900 mb-3">
+            No hay actividades disponibles
+          </h3>
+          <p className="text-gray-600 mb-6">
+            No encontramos actividades para tu destino. Este servicio es
+            opcional para tu viaje.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div>
       <div className="mb-6 p-4 bg-gray-50 border border-gray-200 rounded-lg">

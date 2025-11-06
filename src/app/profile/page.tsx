@@ -28,43 +28,15 @@ const ProfilePageContent = () => {
     "overview" | "history" | "settings"
   >("overview");
 
-  // Mock data - Replace with real data from Firebase
+  // TODO: Reemplazar con data real de API/Firebase
   const userStats: UserStats = {
-    totalTrips: 12,
-    countriesVisited: 8,
-    progressTrips: 2,
-    savedAmount: 45000,
+    totalTrips: 0,
+    countriesVisited: 0,
+    progressTrips: 0,
+    savedAmount: 0,
   };
 
-  const tripHistory: TripHistory[] = [
-    {
-      id: "1",
-      destination: "Punta Cana, República Dominicana",
-      date: "15-20 Dic 2024",
-      status: "progress",
-      image: "https://source.unsplash.com/800x600/?punta-cana,beach",
-      duration: "5 días",
-      price: 35000,
-    },
-    {
-      id: "2",
-      destination: "Madrid, España",
-      date: "10-18 Sep 2024",
-      status: "completed",
-      image: "https://source.unsplash.com/800x600/?madrid,spain",
-      duration: "8 días",
-      price: 52000,
-    },
-    {
-      id: "3",
-      destination: "Nueva York, USA",
-      date: "5-12 Jul 2024",
-      status: "completed",
-      image: "https://source.unsplash.com/800x600/?new-york,city",
-      duration: "7 días",
-      price: 48000,
-    },
-  ];
+  const tripHistory: TripHistory[] = [];
 
   return (
     <div className="p-6 md:p-8">

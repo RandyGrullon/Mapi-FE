@@ -5,7 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { NavigationProvider } from "@/components/navigation/NavigationContext";
 import { SidebarProvider } from "@/components/sidebar/SidebarContext";
 import { Sidebar } from "@/components/sidebar/Sidebar";
-import { TravelPackage } from "@/components/data/travel-data";
+import { TravelPackage } from "@/types/travel";
 import { PackageDetailsView } from "@/components/views/PackageDetailsView";
 
 export default function PackageDetailPage() {
