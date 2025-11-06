@@ -17,8 +17,6 @@ export default function LoginPage() {
 
     // Simulate login process
     setTimeout(() => {
-      console.log("Login attempt:", { email, password });
-      // For now, just redirect to wizard
       router.push("/plan");
       setIsLoading(false);
     }, 1500);

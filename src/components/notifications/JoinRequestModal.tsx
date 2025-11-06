@@ -65,7 +65,7 @@ export const JoinRequestModal = ({
         setMessage("");
       }, 2000);
     } catch (error) {
-      console.error("Error creating join request:", error);
+      // Silent fail
     } finally {
       setIsSubmitting(false);
     }

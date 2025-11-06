@@ -23,7 +23,6 @@ export class DemoTripsInitializer {
   // Crear viajes de demostración
   static createDemoTrips(): void {
     if (this.isInitialized()) {
-      console.log("Demo trips already initialized");
       return;
     }
 
@@ -896,8 +895,6 @@ export class DemoTripsInitializer {
 
     // Marcar como inicializado
     this.markAsInitialized();
-
-    console.log(`✅ ${demoTrips.length} demo trips created successfully!`);
   }
 
   // Resetear demos (útil para desarrollo)

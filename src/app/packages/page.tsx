@@ -10,7 +10,6 @@ import { TravelPackagesPage } from "@/components/travel/TravelPackagesPage";
 function convertWizardDataToTravelInfo(packageData: any, wizardModules: any) {
   // Validar que wizardModules sea un array
   if (!Array.isArray(wizardModules)) {
-    console.warn("wizardModules no es un array:", wizardModules);
     return null;
   }
 
@@ -104,9 +103,6 @@ const PackagesPageLayout = () => {
         const pkg = JSON.parse(savedPackage);
         const wizardData = JSON.parse(savedWizardData);
 
-        console.log("📦 Package data:", pkg);
-        console.log("🧙 Wizard data:", wizardData);
-
         setPackageData(pkg);
 
         // Convertir los datos del wizard al formato que espera TravelPackagesPage
@@ -119,9 +115,6 @@ const PackagesPageLayout = () => {
         if (convertedTravelInfo) {
           setTravelInfo(convertedTravelInfo);
         } else {
-          console.warn(
-            "No se pudieron convertir los datos del wizard, usando datos demo"
-          );
           setTravelInfo({
             origin: "Madrid",
             destination: "Barcelona",
@@ -153,7 +146,6 @@ const PackagesPageLayout = () => {
         });
       }
     } catch (error) {
-      console.error("Error loading package data:", error);
       // Usar datos demo en caso de error
       setTravelInfo({
         origin: "Madrid",

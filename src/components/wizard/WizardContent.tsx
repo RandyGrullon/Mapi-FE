@@ -69,12 +69,7 @@ export const WizardContent = () => {
           {allStepsCompleted ? (
             <>
               <TripSummary />
-              <SearchButton
-                travelInfo={travelInfo}
-                onSearch={() => {
-                  console.log("Buscando opciones con:", travelInfo);
-                }}
-              />
+              <SearchButton travelInfo={travelInfo} onSearch={() => {}} />
             </>
           ) : (
             <>

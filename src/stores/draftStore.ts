@@ -46,20 +46,16 @@ const calculateProgress = (
 ): number => {
   // Si está completado, siempre retornar 100%
   if (isCompleted) {
-    console.log("✅ Wizard completado - Progreso: 100%");
     return 100;
   }
 
   // Si no hay módulos, 0%
   if (activeModules.length === 0) {
-    console.log("⚠️ No hay módulos - Progreso: 0%");
     return 0;
   }
 
   let totalSteps = 0;
   let completedSteps = 0;
-
-  console.log("📊 Calculando progreso:");
 
   activeModules.forEach((module, index) => {
     const isCurrentModule = index === currentModuleIndex;
@@ -67,44 +63,21 @@ const calculateProgress = (
 
     totalSteps += module.totalSteps;
 
-    let moduleStepsCompleted = 0;
-
     if (module.completed) {
       // Si el módulo está marcado como completado, contar todos sus pasos
-      moduleStepsCompleted = module.totalSteps;
       completedSteps += module.totalSteps;
-      console.log(
-        `  ✅ ${module.type}: ${moduleStepsCompleted}/${module.totalSteps} pasos (COMPLETADO)`
-      );
     } else if (isBeforeCurrent) {
       // Módulos anteriores al actual (asumimos completados)
-      moduleStepsCompleted = module.totalSteps;
       completedSteps += module.totalSteps;
-      console.log(
-        `  ✅ ${module.type}: ${moduleStepsCompleted}/${module.totalSteps} pasos (anterior)`
-      );
     } else if (isCurrentModule) {
       // Módulo actual - contar pasos completados
-      moduleStepsCompleted = module.currentStep;
       completedSteps += module.currentStep;
-      console.log(
-        `  🔄 ${module.type}: ${moduleStepsCompleted}/${module.totalSteps} pasos (ACTUAL)`
-      );
-    } else {
-      // Módulos futuros
-      console.log(
-        `  ⏳ ${module.type}: 0/${module.totalSteps} pasos (pendiente)`
-      );
     }
   });
 
   // Asegurar que no exceda 100% y no sea menor que 0%
   const progress = Math.round((completedSteps / totalSteps) * 100);
   const finalProgress = Math.min(Math.max(progress, 0), 99); // Máximo 99% si no está completado
-
-  console.log(
-    `📈 Total: ${completedSteps}/${totalSteps} pasos = ${finalProgress}%`
-  );
 
   return finalProgress;
 };
@@ -148,7 +121,6 @@ const loadDraftsFromStorage = (): Draft[] => {
     const drafts = JSON.parse(stored);
     return Array.isArray(drafts) ? drafts : [];
   } catch (error) {
-    console.error("Error loading drafts from storage:", error);
     return [];
   }
 };
@@ -160,7 +132,7 @@ const saveDraftsToStorage = (drafts: Draft[]) => {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(drafts));
   } catch (error) {
-    console.error("Error saving drafts to storage:", error);
+    // Silent fail
   }
 };
 
@@ -180,13 +152,6 @@ export const useDraftStore = create<DraftStore>((set, get) => {
       const wizardState = useWizardStore.getState();
       const { drafts, currentDraftId } = get();
 
-      console.log("saveDraft called:", {
-        currentDraftId,
-        selectedServices: wizardState.selectedServices,
-        activeModules: wizardState.activeModules.length,
-        currentModuleIndex: wizardState.currentModuleIndex,
-      });
-
       const previewInfo = extractPreviewInfo(wizardState.activeModules);
       const progress = calculateProgress(
         wizardState.activeModules,
@@ -195,12 +160,6 @@ export const useDraftStore = create<DraftStore>((set, get) => {
       );
 
       const now = new Date().toISOString();
-
-      console.log("Draft details:", {
-        progress,
-        previewInfo,
-        isCompleted: wizardState.completed,
-      });
 
       // Si ya existe un draft actual, actualizarlo
       if (currentDraftId) {
@@ -225,7 +184,6 @@ export const useDraftStore = create<DraftStore>((set, get) => {
           });
 
           saveDraftsToStorage(updatedDrafts);
-          console.log("Draft updated:", currentDraftId);
           return currentDraftId;
         }
       }
@@ -252,8 +210,6 @@ export const useDraftStore = create<DraftStore>((set, get) => {
       });
 
       saveDraftsToStorage(updatedDrafts);
-      console.log("New draft created and saved:", newDraft.id, newDraft.name);
-      console.log("Total drafts now:", updatedDrafts.length);
       return newDraft.id;
     },
 

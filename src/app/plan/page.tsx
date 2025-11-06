@@ -8,7 +8,6 @@ import { ModularWizard } from "@/components/wizard/ModularWizard";
 import { useWizardStore } from "@/stores/wizardStore";
 import { DraftManager } from "@/components/drafts/DraftManager";
 import { SaveDraftButton } from "@/components/drafts/SaveDraftButton";
-import { DraftDebugPanel } from "@/components/drafts/DraftDebugPanel";
 import { Toast, ToastType } from "@/components/ui/Toast";
 import { ProgressBadge } from "@/components/wizard/ProgressBadge";
 
@@ -35,7 +34,6 @@ const PlanPageLayout = () => {
   return (
     <div className="flex h-screen bg-gray-50 overflow-hidden">
       <DraftManager />
-      <DraftDebugPanel />
       <Sidebar />
 
       <div className="flex-1 flex flex-col">

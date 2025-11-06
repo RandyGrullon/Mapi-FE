@@ -184,7 +184,6 @@ export class CompletedTripsManager {
       const data = localStorage.getItem(COMPLETED_TRIPS_KEY);
       return data ? JSON.parse(data) : [];
     } catch (error) {
-      console.error("Error loading trips:", error);
       return [];
     }
   }

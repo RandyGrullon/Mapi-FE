@@ -20,7 +20,6 @@ const loadNotifications = (): Notification[] => {
     const stored = localStorage.getItem(NOTIFICATIONS_KEY);
     return stored ? JSON.parse(stored) : [];
   } catch (error) {
-    console.error("Error loading notifications:", error);
     return [];
   }
 };
@@ -30,7 +29,7 @@ const saveNotifications = (notifications: Notification[]) => {
   try {
     localStorage.setItem(NOTIFICATIONS_KEY, JSON.stringify(notifications));
   } catch (error) {
-    console.error("Error saving notifications:", error);
+    // Silent fail
   }
 };
 
@@ -40,7 +39,6 @@ const loadJoinRequests = (): JoinRequest[] => {
     const stored = localStorage.getItem(JOIN_REQUESTS_KEY);
     return stored ? JSON.parse(stored) : [];
   } catch (error) {
-    console.error("Error loading join requests:", error);
     return [];
   }
 };
@@ -50,7 +48,7 @@ const saveJoinRequests = (requests: JoinRequest[]) => {
   try {
     localStorage.setItem(JOIN_REQUESTS_KEY, JSON.stringify(requests));
   } catch (error) {
-    console.error("Error saving join requests:", error);
+    // Silent fail
   }
 };
 
