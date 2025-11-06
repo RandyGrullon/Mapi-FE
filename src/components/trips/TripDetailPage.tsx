@@ -8,6 +8,10 @@ import {
 } from "./CompletedTripsManager";
 import { useNavigation } from "../navigation/NavigationContext";
 import { ShareModal } from "../modals/ShareModal";
+import { NotificationIcon } from "../notifications/NotificationIcon";
+import { NotificationPanel } from "../notifications/NotificationPanel";
+import { JoinRequestModal } from "../notifications/JoinRequestModal";
+import { useNotificationStore } from "@/stores/notificationStore";
 import { OverviewTab } from "../tabs/OverviewTab";
 import { FlightsTab } from "../tabs/FlightsTab";
 import { HotelTab } from "../tabs/HotelTab";
@@ -15,7 +19,6 @@ import { ActivitiesTab } from "../tabs/ActivitiesTab";
 import { BudgetTab } from "../tabs/BudgetTab";
 import { CarTab } from "../tabs/CarTab";
 import { BackButton, ShareButton, TabButton } from "../buttons";
-import { NotificationIcon } from "../notifications/NotificationIcon";
 
 interface TripDetailPageProps {
   trip: CompletedTrip;
@@ -27,8 +30,15 @@ export const TripDetailPage = ({ trip }: TripDetailPageProps) => {
     "overview" | "flights" | "hotel" | "car" | "activities" | "budget"
   >("overview");
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+  const [isNotificationPanelOpen, setIsNotificationPanelOpen] = useState(false);
+  const [selectedRequestId, setSelectedRequestId] = useState<string | null>(
+    null
+  );
+  const [isJoinRequestModalOpen, setIsJoinRequestModalOpen] = useState(false);
   const [isClient, setIsClient] = useState(false);
   const [currentTrip, setCurrentTrip] = useState(trip);
+
+  const { joinRequests } = useNotificationStore();
 
   useEffect(() => {
     setIsClient(true);
@@ -59,6 +69,40 @@ export const TripDetailPage = ({ trip }: TripDetailPageProps) => {
       setCurrentTrip(updatedTrip);
     },
     [currentTrip]
+  );
+
+  const handleNotificationClick = useCallback(() => {
+    setIsNotificationPanelOpen(true);
+  }, []);
+
+  const handleRequestClick = useCallback((requestId: string) => {
+    setSelectedRequestId(requestId);
+    setIsJoinRequestModalOpen(true);
+    setIsNotificationPanelOpen(false);
+  }, []);
+
+  const handleApproveRequest = useCallback(
+    (requestId: string) => {
+      const request = joinRequests.find((r) => r.id === requestId);
+      if (request) {
+        const newParticipant: TripParticipant = {
+          id: `participant_${Date.now()}`,
+          name: request.requesterName,
+          email: request.requesterEmail,
+          role: "participant",
+          joinedAt: new Date().toISOString(),
+        };
+
+        const updatedTrip = {
+          ...currentTrip,
+          participants: [...(currentTrip.participants || []), newParticipant],
+        };
+
+        CompletedTripsManager.saveTrip(updatedTrip);
+        setCurrentTrip(updatedTrip);
+      }
+    },
+    [joinRequests, currentTrip]
   );
 
   const openGoogleMaps = (location: string) => {
@@ -167,7 +211,7 @@ export const TripDetailPage = ({ trip }: TripDetailPageProps) => {
               </div>
             </div>
             <div className="flex gap-2 flex-shrink-0 self-start">
-              <NotificationIcon />
+              <NotificationIcon onClick={handleNotificationClick} />
               <ShareButton
                 onClick={handleShareClick}
                 showLabelOnMobile={true}
@@ -263,6 +307,27 @@ export const TripDetailPage = ({ trip }: TripDetailPageProps) => {
           setCurrentTrip(updatedTrip);
         }}
       />
+
+      {/* Notification Panel */}
+      <NotificationPanel
+        isOpen={isNotificationPanelOpen}
+        onClose={() => setIsNotificationPanelOpen(false)}
+        onRequestClick={handleRequestClick}
+      />
+
+      {/* Join Request Modal */}
+      {selectedRequestId && (
+        <JoinRequestModal
+          isOpen={isJoinRequestModalOpen}
+          onClose={() => {
+            setIsJoinRequestModalOpen(false);
+            setSelectedRequestId(null);
+          }}
+          mode="respond"
+          request={joinRequests.find((r) => r.id === selectedRequestId)}
+          onApprove={handleApproveRequest}
+        />
+      )}
 
       <style jsx>{`
         .hide-scrollbar::-webkit-scrollbar {

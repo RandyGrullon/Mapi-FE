@@ -1,177 +1,235 @@
 /**
  * Notification Store
- * Gestión de notificaciones usando Zustand
+ * Zustand store para gestionar notificaciones y solicitudes de unión
  */
 
 import { create } from "zustand";
-import { TripNotification, JoinRequest } from "@/types/notification";
+import {
+  Notification,
+  JoinRequest,
+  NotificationStore,
+} from "@/types/notification";
 
-interface NotificationState {
-  notifications: TripNotification[];
-  joinRequests: JoinRequest[];
-  addNotification: (
-    notification: Omit<TripNotification, "id" | "createdAt">
-  ) => void;
-  markAsRead: (notificationId: string) => void;
-  markAllAsRead: () => void;
-  deleteNotification: (notificationId: string) => void;
-  getUnreadCount: () => number;
-  addJoinRequest: (
-    request: Omit<JoinRequest, "id" | "createdAt" | "status">
-  ) => string;
-  approveJoinRequest: (requestId: string) => JoinRequest | null;
-  rejectJoinRequest: (requestId: string) => void;
-  getPendingRequests: (tripId: string) => JoinRequest[];
-  loadFromStorage: () => void;
-  saveToStorage: () => void;
-}
+const NOTIFICATIONS_KEY = "mapi_notifications";
+const JOIN_REQUESTS_KEY = "mapi_join_requests";
 
-const STORAGE_KEY = "mapi_notifications";
-const REQUESTS_KEY = "mapi_join_requests";
+// Helper functions para localStorage
+const loadNotifications = (): Notification[] => {
+  if (typeof window === "undefined") return [];
+  try {
+    const stored = localStorage.getItem(NOTIFICATIONS_KEY);
+    return stored ? JSON.parse(stored) : [];
+  } catch (error) {
+    console.error("Error loading notifications:", error);
+    return [];
+  }
+};
 
-export const useNotificationStore = create<NotificationState>((set, get) => ({
-  notifications: [],
-  joinRequests: [],
+const saveNotifications = (notifications: Notification[]) => {
+  if (typeof window === "undefined") return;
+  try {
+    localStorage.setItem(NOTIFICATIONS_KEY, JSON.stringify(notifications));
+  } catch (error) {
+    console.error("Error saving notifications:", error);
+  }
+};
+
+const loadJoinRequests = (): JoinRequest[] => {
+  if (typeof window === "undefined") return [];
+  try {
+    const stored = localStorage.getItem(JOIN_REQUESTS_KEY);
+    return stored ? JSON.parse(stored) : [];
+  } catch (error) {
+    console.error("Error loading join requests:", error);
+    return [];
+  }
+};
+
+const saveJoinRequests = (requests: JoinRequest[]) => {
+  if (typeof window === "undefined") return;
+  try {
+    localStorage.setItem(JOIN_REQUESTS_KEY, JSON.stringify(requests));
+  } catch (error) {
+    console.error("Error saving join requests:", error);
+  }
+};
+
+const generateId = () => {
+  return `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+};
+
+export const useNotificationStore = create<NotificationStore>((set, get) => ({
+  notifications: loadNotifications(),
+  joinRequests: loadJoinRequests(),
+  unreadCount: loadNotifications().filter((n) => !n.read).length,
 
   addNotification: (notification) => {
-    const newNotification: TripNotification = {
+    const newNotification: Notification = {
       ...notification,
-      id: `notif_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      id: generateId(),
       createdAt: new Date().toISOString(),
     };
 
-    set((state) => ({
-      notifications: [newNotification, ...state.notifications],
-    }));
-    get().saveToStorage();
+    set((state) => {
+      const notifications = [newNotification, ...state.notifications];
+      saveNotifications(notifications);
+      return {
+        notifications,
+        unreadCount: notifications.filter((n) => !n.read).length,
+      };
+    });
   },
 
   markAsRead: (notificationId) => {
-    set((state) => ({
-      notifications: state.notifications.map((notif) =>
-        notif.id === notificationId ? { ...notif, read: true } : notif
-      ),
-    }));
-    get().saveToStorage();
+    set((state) => {
+      const notifications = state.notifications.map((n) =>
+        n.id === notificationId ? { ...n, read: true } : n
+      );
+      saveNotifications(notifications);
+      return {
+        notifications,
+        unreadCount: notifications.filter((n) => !n.read).length,
+      };
+    });
   },
 
   markAllAsRead: () => {
-    set((state) => ({
-      notifications: state.notifications.map((notif) => ({
-        ...notif,
+    set((state) => {
+      const notifications = state.notifications.map((n) => ({
+        ...n,
         read: true,
-      })),
-    }));
-    get().saveToStorage();
+      }));
+      saveNotifications(notifications);
+      return {
+        notifications,
+        unreadCount: 0,
+      };
+    });
   },
 
   deleteNotification: (notificationId) => {
-    set((state) => ({
-      notifications: state.notifications.filter(
-        (notif) => notif.id !== notificationId
-      ),
-    }));
-    get().saveToStorage();
+    set((state) => {
+      const notifications = state.notifications.filter(
+        (n) => n.id !== notificationId
+      );
+      saveNotifications(notifications);
+      return {
+        notifications,
+        unreadCount: notifications.filter((n) => !n.read).length,
+      };
+    });
   },
 
-  getUnreadCount: () => {
-    return get().notifications.filter((notif) => !notif.read).length;
+  clearAll: () => {
+    set(() => {
+      saveNotifications([]);
+      return {
+        notifications: [],
+        unreadCount: 0,
+      };
+    });
   },
 
-  addJoinRequest: (request) => {
+  createJoinRequest: (request) => {
     const newRequest: JoinRequest = {
       ...request,
-      id: `req_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-      createdAt: new Date().toISOString(),
+      id: generateId(),
       status: "pending",
+      createdAt: new Date().toISOString(),
     };
 
-    set((state) => ({
-      joinRequests: [newRequest, ...state.joinRequests],
-    }));
-
-    // Agregar notificación para el owner del viaje
-    get().addNotification({
-      tripId: request.tripId,
-      tripName: "Viaje", // Se actualizará con el nombre real
-      type: "join_request",
-      from: {
-        name: request.requesterName,
-        email: request.requesterEmail,
-      },
-      message: request.message,
-      read: false,
-      status: "pending",
+    set((state) => {
+      const joinRequests = [newRequest, ...state.joinRequests];
+      saveJoinRequests(joinRequests);
+      return { joinRequests };
     });
 
-    get().saveToStorage();
+    // Crear notificación para el organizador del viaje
+    get().addNotification({
+      type: "join_request",
+      title: "Nueva solicitud para unirse",
+      message: `${request.requesterName} quiere unirse a tu viaje a ${request.tripDestination}`,
+      read: false,
+      data: {
+        tripId: request.tripId,
+        requestId: newRequest.id,
+      },
+    });
+
     return newRequest.id;
   },
 
-  approveJoinRequest: (requestId) => {
-    const request = get().joinRequests.find((req) => req.id === requestId);
-    if (!request) return null;
+  acceptJoinRequest: (requestId) => {
+    set((state) => {
+      const joinRequests = state.joinRequests.map((r) =>
+        r.id === requestId
+          ? {
+              ...r,
+              status: "accepted" as const,
+              respondedAt: new Date().toISOString(),
+            }
+          : r
+      );
+      saveJoinRequests(joinRequests);
 
-    set((state) => ({
-      joinRequests: state.joinRequests.map((req) =>
-        req.id === requestId ? { ...req, status: "approved" } : req
-      ),
-    }));
-
-    get().saveToStorage();
-    return { ...request, status: "approved" as const };
-  },
-
-  rejectJoinRequest: (requestId) => {
-    set((state) => ({
-      joinRequests: state.joinRequests.map((req) =>
-        req.id === requestId ? { ...req, status: "rejected" } : req
-      ),
-    }));
-    get().saveToStorage();
-  },
-
-  getPendingRequests: (tripId) => {
-    return get().joinRequests.filter(
-      (req) => req.tripId === tripId && req.status === "pending"
-    );
-  },
-
-  loadFromStorage: () => {
-    if (typeof window === "undefined") return;
-
-    try {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      const storedRequests = localStorage.getItem(REQUESTS_KEY);
-
-      if (stored) {
-        const notifications = JSON.parse(stored);
-        set({ notifications });
+      const request = joinRequests.find((r) => r.id === requestId);
+      if (request) {
+        // Notificar al solicitante
+        get().addNotification({
+          type: "join_accepted",
+          title: "¡Solicitud aceptada!",
+          message: `Tu solicitud para unirte al viaje a ${request.tripDestination} ha sido aceptada`,
+          read: false,
+          data: {
+            tripId: request.tripId,
+            requestId: requestId,
+          },
+        });
       }
 
-      if (storedRequests) {
-        const joinRequests = JSON.parse(storedRequests);
-        set({ joinRequests });
-      }
-    } catch (error) {
-      console.error("Error loading notifications:", error);
-    }
+      return { joinRequests };
+    });
   },
 
-  saveToStorage: () => {
-    if (typeof window === "undefined") return;
+  rejectJoinRequest: (requestId, reason) => {
+    set((state) => {
+      const joinRequests = state.joinRequests.map((r) =>
+        r.id === requestId
+          ? {
+              ...r,
+              status: "rejected" as const,
+              respondedAt: new Date().toISOString(),
+            }
+          : r
+      );
+      saveJoinRequests(joinRequests);
 
-    try {
-      const { notifications, joinRequests } = get();
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(notifications));
-      localStorage.setItem(REQUESTS_KEY, JSON.stringify(joinRequests));
-    } catch (error) {
-      console.error("Error saving notifications:", error);
-    }
+      const request = joinRequests.find((r) => r.id === requestId);
+      if (request) {
+        // Notificar al solicitante
+        get().addNotification({
+          type: "join_rejected",
+          title: "Solicitud rechazada",
+          message:
+            reason ||
+            `Tu solicitud para unirte al viaje a ${request.tripDestination} ha sido rechazada`,
+          read: false,
+          data: {
+            tripId: request.tripId,
+            requestId: requestId,
+          },
+        });
+      }
+
+      return { joinRequests };
+    });
+  },
+
+  getRequestsByTrip: (tripId) => {
+    return get().joinRequests.filter((r) => r.tripId === tripId);
+  },
+
+  getPendingRequests: () => {
+    return get().joinRequests.filter((r) => r.status === "pending");
   },
 }));
-
-// Cargar notificaciones al iniciar
-if (typeof window !== "undefined") {
-  useNotificationStore.getState().loadFromStorage();
-}
