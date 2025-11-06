@@ -1,42 +1,136 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { NavigationProvider } from "@/components/navigation/NavigationContext";
 import { WizardProvider } from "@/components/wizard/WizardProvider";
 import { SidebarProvider } from "@/components/sidebar/SidebarContext";
 import { Sidebar } from "@/components/sidebar/Sidebar";
-
-interface UserStats {
-  totalTrips: number;
-  countriesVisited: number;
-  progressTrips: number;
-  savedAmount: number;
-}
-
-interface TripHistory {
-  id: string;
-  destination: string;
-  date: string;
-  status: "completed" | "progress" | "cancelled";
-  image: string;
-  duration: string;
-  price: number;
-}
+import { useAuth } from "@/components/auth/AuthContext";
+import { userStatsService, UserStats, TripHistory } from "@/services/userStats";
+import { authService } from "@/services/auth";
+import { useRouter } from "next/navigation";
+import { supabaseClient } from "@/lib/supabase/client";
 
 const ProfilePageContent = () => {
+  const { user, loading: authLoading } = useAuth();
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState<
     "overview" | "history" | "settings"
   >("overview");
 
-  // TODO: Reemplazar con data real de API/Firebase
-  const userStats: UserStats = {
+  const [userStats, setUserStats] = useState<UserStats>({
     totalTrips: 0,
     countriesVisited: 0,
-    progressTrips: 0,
+    upcomingTrips: 0,
+    completedTrips: 0,
     savedAmount: 0,
+  });
+
+  const [tripHistory, setTripHistory] = useState<TripHistory[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  // Estados para edición de información del usuario
+  const [fullName, setFullName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [country, setCountry] = useState("República Dominicana");
+  const [isSaving, setIsSaving] = useState(false);
+
+  // Cargar estadísticas del usuario
+  useEffect(() => {
+    const loadUserData = async () => {
+      if (!user) {
+        setLoading(false);
+        return;
+      }
+
+      try {
+        setLoading(true);
+        const [stats, history] = await Promise.all([
+          userStatsService.getUserStats(user.id),
+          userStatsService.getTripHistory(user.id),
+        ]);
+
+        setUserStats(stats);
+        setTripHistory(history);
+      } catch (error) {
+        console.error("Error loading user data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (!authLoading) {
+      loadUserData();
+    }
+  }, [user, authLoading]);
+
+  // Cargar información del usuario en los campos de edición
+  useEffect(() => {
+    if (user) {
+      setFullName(user.user_metadata?.full_name || "");
+      setPhone(user.user_metadata?.phone || "");
+      setCountry(user.user_metadata?.country || "República Dominicana");
+    }
+  }, [user]);
+
+  // Obtener las iniciales del usuario
+  const getUserInitials = () => {
+    if (!user?.email) return "U";
+    return user.email.charAt(0).toUpperCase();
   };
 
-  const tripHistory: TripHistory[] = [];
+  // Obtener el nombre del usuario
+  const getUserName = () => {
+    if (!user?.email) return "Viajero";
+    return user.user_metadata?.full_name || user.email.split("@")[0];
+  };
+
+  const handleSignOut = async () => {
+    try {
+      await authService.signOut();
+      router.push("/login");
+    } catch (error) {
+      console.error("Error signing out:", error);
+    }
+  };
+
+  const handleSaveProfile = async () => {
+    if (!user) return;
+
+    try {
+      setIsSaving(true);
+
+      // Actualizar los metadatos del usuario en Supabase
+      const { error } = await supabaseClient.auth.updateUser({
+        data: {
+          full_name: fullName,
+          phone: phone,
+          country: country,
+        },
+      });
+
+      if (error) throw error;
+
+      alert("Perfil actualizado exitosamente");
+    } catch (error) {
+      console.error("Error updating profile:", error);
+      alert("Error al actualizar el perfil");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleEditProfile = () => {
+    setActiveTab("settings");
+  };
+
+  if (authLoading || loading) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="p-6 md:p-8">
@@ -48,10 +142,14 @@ const ProfilePageContent = () => {
             <div className="relative">
               <div className="w-24 h-24 md:w-32 md:h-32 rounded-full bg-gradient-to-br from-black to-black-olive flex items-center justify-center shadow-2xl ring-4 ring-white">
                 <span className="text-white font-bold text-4xl md:text-5xl">
-                  U
+                  {getUserInitials()}
                 </span>
               </div>
-              <button className="absolute bottom-0 right-0 w-10 h-10 bg-black text-white rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-transform">
+              <button
+                onClick={handleEditProfile}
+                className="absolute bottom-0 right-0 w-10 h-10 bg-black text-white rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-transform"
+                title="Editar perfil"
+              >
                 <svg
                   className="w-5 h-5"
                   fill="none"
@@ -70,24 +168,34 @@ const ProfilePageContent = () => {
 
             {/* User Info */}
             <div className="flex-1 text-center md:text-left">
-              <h2 className="text-3xl font-bold text-black mb-2">Usuario</h2>
-              <p className="text-black/60 mb-4">usuario@email.com</p>
+              <h2 className="text-3xl font-bold text-black mb-2">
+                {getUserName()}
+              </h2>
+              <p className="text-black/60 mb-4">{user?.email}</p>
               <div className="flex flex-wrap gap-2 justify-center md:justify-start">
                 <span className="px-4 py-2 bg-black/5 rounded-full text-sm font-medium text-black/70">
                   🌍 Explorador
                 </span>
-                <span className="px-4 py-2 bg-black/5 rounded-full text-sm font-medium text-black/70">
-                  ⭐ Premium
-                </span>
-                <span className="px-4 py-2 bg-black/5 rounded-full text-sm font-medium text-black/70">
-                  🎯 Aventurero
-                </span>
+                {userStats.totalTrips >= 5 && (
+                  <span className="px-4 py-2 bg-black/5 rounded-full text-sm font-medium text-black/70">
+                    ⭐ Viajero Frecuente
+                  </span>
+                )}
+                {userStats.totalTrips >= 10 && (
+                  <span className="px-4 py-2 bg-black/5 rounded-full text-sm font-medium text-black/70">
+                    🎯 Aventurero
+                  </span>
+                )}
               </div>
             </div>
 
             {/* Quick Actions */}
             <div className="flex gap-3">
-              <button className="p-3 rounded-xl bg-black text-white hover:bg-black-olive transition-all duration-300 shadow-lg">
+              <button
+                onClick={handleEditProfile}
+                className="p-3 rounded-xl bg-black text-white hover:bg-black-olive transition-all duration-300 shadow-lg"
+                title="Editar perfil"
+              >
                 <svg
                   className="w-6 h-6"
                   fill="none"
@@ -280,7 +388,7 @@ const ProfilePageContent = () => {
                     </svg>
                   </div>
                   <p className="text-3xl font-bold text-black mb-1">
-                    {userStats.progressTrips}
+                    {userStats.upcomingTrips}
                   </p>
                   <p className="text-sm text-black/60">Próximos Viajes</p>
                 </div>
@@ -326,53 +434,82 @@ const ProfilePageContent = () => {
                   </svg>
                   Actividad Reciente
                 </h3>
-                <div className="space-y-4">
-                  {tripHistory.slice(0, 3).map((trip) => (
-                    <div
-                      key={trip.id}
-                      className="flex items-center gap-4 p-4 rounded-xl hover:bg-black/5 transition-all duration-300 cursor-pointer"
-                    >
-                      <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-black/10 to-black-olive/10 flex items-center justify-center flex-shrink-0">
-                        <svg
-                          className="w-6 h-6 text-black/60"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                          />
-                        </svg>
-                      </div>
-                      <div className="flex-1">
-                        <p className="font-semibold text-black">
-                          {trip.destination}
-                        </p>
-                        <p className="text-sm text-black/60">
-                          {trip.date} • {trip.duration}
-                        </p>
-                      </div>
-                      <span
-                        className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                          trip.status === "progress"
-                            ? "bg-green-100 text-green-700"
-                            : trip.status === "completed"
-                            ? "bg-blue-100 text-blue-700"
-                            : "bg-gray-100 text-gray-700"
-                        }`}
+                {tripHistory.length === 0 ? (
+                  <div className="text-center py-8">
+                    <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-black/5 flex items-center justify-center">
+                      <svg
+                        className="w-8 h-8 text-black/30"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
                       >
-                        {trip.status === "progress"
-                          ? "En Progreso"
-                          : trip.status === "completed"
-                          ? "Completado"
-                          : "Cancelado"}
-                      </span>
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M13 10V3L4 14h7v7l9-11h-7z"
+                        />
+                      </svg>
                     </div>
-                  ))}
-                </div>
+                    <p className="text-black/60 mb-4">
+                      No hay actividad reciente
+                    </p>
+                    <button
+                      onClick={() => router.push("/plan")}
+                      className="px-6 py-2 bg-black text-white rounded-xl font-semibold hover:bg-black-olive transition-all duration-300"
+                    >
+                      Crear Primer Viaje
+                    </button>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {tripHistory.slice(0, 3).map((trip) => (
+                      <div
+                        key={trip.id}
+                        className="flex items-center gap-4 p-4 rounded-xl hover:bg-black/5 transition-all duration-300 cursor-pointer"
+                      >
+                        <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-black/10 to-black-olive/10 flex items-center justify-center flex-shrink-0">
+                          <svg
+                            className="w-6 h-6 text-black/60"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                            />
+                          </svg>
+                        </div>
+                        <div className="flex-1">
+                          <p className="font-semibold text-black">
+                            {trip.destination}
+                          </p>
+                          <p className="text-sm text-black/60">
+                            {trip.date} • {trip.duration}
+                          </p>
+                        </div>
+                        <span
+                          className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                            trip.status === "upcoming"
+                              ? "bg-green-100 text-green-700"
+                              : trip.status === "completed"
+                              ? "bg-blue-100 text-blue-700"
+                              : "bg-gray-100 text-gray-700"
+                          }`}
+                        >
+                          {trip.status === "upcoming"
+                            ? "Próximo"
+                            : trip.status === "completed"
+                            ? "Completado"
+                            : "Cancelado"}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
           )}
@@ -392,94 +529,127 @@ const ProfilePageContent = () => {
                 </select>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {tripHistory.map((trip) => (
-                  <div
-                    key={trip.id}
-                    className="bg-white rounded-2xl overflow-hidden border-2 border-black/5 hover:border-black/20 transition-all duration-300 hover:shadow-xl cursor-pointer group"
-                  >
-                    <div className="relative h-48 bg-gray-200">
-                      <div className="absolute inset-0 bg-gradient-to-br from-black/20 to-transparent"></div>
-                      <div className="absolute top-4 right-4">
-                        <span
-                          className={`px-3 py-1 rounded-full text-xs font-semibold backdrop-blur-sm ${
-                            trip.status === "progress"
-                              ? "bg-green-500/90 text-white"
-                              : trip.status === "completed"
-                              ? "bg-blue-500/90 text-white"
-                              : "bg-gray-500/90 text-white"
-                          }`}
-                        >
-                          {trip.status === "progress"
-                            ? "En Progreso"
-                            : trip.status === "completed"
-                            ? "Completado"
-                            : "Cancelado"}
-                        </span>
-                      </div>
-                    </div>
-                    <div className="p-6">
-                      <h4 className="font-bold text-lg text-black mb-2 group-hover:text-black-olive transition-colors">
-                        {trip.destination}
-                      </h4>
-                      <div className="space-y-2 mb-4">
-                        <p className="text-sm text-black/60 flex items-center gap-2">
-                          <svg
-                            className="w-4 h-4"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                            />
-                          </svg>
-                          {trip.date}
-                        </p>
-                        <p className="text-sm text-black/60 flex items-center gap-2">
-                          <svg
-                            className="w-4 h-4"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                            />
-                          </svg>
-                          {trip.duration}
-                        </p>
-                      </div>
-                      <div className="flex items-center justify-between pt-4 border-t border-black/10">
-                        <span className="text-2xl font-bold text-black">
-                          ${trip.price.toLocaleString()}
-                        </span>
-                        <button className="p-2 rounded-lg bg-black text-white hover:bg-black-olive transition-all duration-300">
-                          <svg
-                            className="w-5 h-5"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M9 5l7 7-7 7"
-                            />
-                          </svg>
-                        </button>
-                      </div>
-                    </div>
+              {tripHistory.length === 0 ? (
+                <div className="bg-white rounded-3xl p-12 md:p-16 shadow-xl border-2 border-black/5 text-center">
+                  <div className="w-24 h-24 mx-auto mb-6 rounded-full bg-black/5 flex items-center justify-center">
+                    <svg
+                      className="w-12 h-12 text-black/30"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                      />
+                    </svg>
                   </div>
-                ))}
-              </div>
+                  <h3 className="text-2xl font-bold text-black mb-3">
+                    No tienes viajes aún
+                  </h3>
+                  <p className="text-black/60 mb-6 max-w-md mx-auto">
+                    Comienza a planificar tu próxima aventura. Crea tu primer
+                    viaje y empieza a explorar el mundo.
+                  </p>
+                  <button
+                    onClick={() => router.push("/plan")}
+                    className="px-8 py-3 bg-gradient-to-r from-black to-black-olive text-white rounded-xl font-semibold hover:shadow-lg transition-all duration-300 transform hover:scale-105"
+                  >
+                    Planificar Viaje
+                  </button>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {tripHistory.map((trip) => (
+                    <div
+                      key={trip.id}
+                      className="bg-white rounded-2xl overflow-hidden border-2 border-black/5 hover:border-black/20 transition-all duration-300 hover:shadow-xl cursor-pointer group"
+                    >
+                      <div className="relative h-48 bg-gray-200">
+                        <div className="absolute inset-0 bg-gradient-to-br from-black/20 to-transparent"></div>
+                        <div className="absolute top-4 right-4">
+                          <span
+                            className={`px-3 py-1 rounded-full text-xs font-semibold backdrop-blur-sm ${
+                              trip.status === "upcoming"
+                                ? "bg-green-500/90 text-white"
+                                : trip.status === "completed"
+                                ? "bg-blue-500/90 text-white"
+                                : "bg-gray-500/90 text-white"
+                            }`}
+                          >
+                            {trip.status === "upcoming"
+                              ? "Próximo"
+                              : trip.status === "completed"
+                              ? "Completado"
+                              : "Cancelado"}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="p-6">
+                        <h4 className="font-bold text-lg text-black mb-2 group-hover:text-black-olive transition-colors">
+                          {trip.destination}
+                        </h4>
+                        <div className="space-y-2 mb-4">
+                          <p className="text-sm text-black/60 flex items-center gap-2">
+                            <svg
+                              className="w-4 h-4"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                              />
+                            </svg>
+                            {trip.date}
+                          </p>
+                          <p className="text-sm text-black/60 flex items-center gap-2">
+                            <svg
+                              className="w-4 h-4"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                              />
+                            </svg>
+                            {trip.duration}
+                          </p>
+                        </div>
+                        <div className="flex items-center justify-between pt-4 border-t border-black/10">
+                          <span className="text-2xl font-bold text-black">
+                            ${trip.price.toLocaleString()}
+                          </span>
+                          <button className="p-2 rounded-lg bg-black text-white hover:bg-black-olive transition-all duration-300">
+                            <svg
+                              className="w-5 h-5"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M9 5l7 7-7 7"
+                              />
+                            </svg>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           )}
 
@@ -511,7 +681,9 @@ const ProfilePageContent = () => {
                     </label>
                     <input
                       type="text"
-                      defaultValue="Usuario"
+                      value={fullName}
+                      onChange={(e) => setFullName(e.target.value)}
+                      placeholder="Ingresa tu nombre completo"
                       className="w-full px-4 py-3 rounded-xl border-2 border-black/10 focus:border-black focus:ring-4 focus:ring-black/5 outline-none transition-all duration-300"
                     />
                   </div>
@@ -521,9 +693,13 @@ const ProfilePageContent = () => {
                     </label>
                     <input
                       type="email"
-                      defaultValue="usuario@email.com"
-                      className="w-full px-4 py-3 rounded-xl border-2 border-black/10 focus:border-black focus:ring-4 focus:ring-black/5 outline-none transition-all duration-300"
+                      value={user?.email || ""}
+                      disabled
+                      className="w-full px-4 py-3 rounded-xl border-2 border-black/10 bg-gray-50 text-gray-500 cursor-not-allowed outline-none transition-all duration-300"
                     />
+                    <p className="text-xs text-black/40 mt-1">
+                      El email no se puede cambiar
+                    </p>
                   </div>
                   <div>
                     <label className="block text-sm font-semibold text-black/70 mb-2">
@@ -531,7 +707,9 @@ const ProfilePageContent = () => {
                     </label>
                     <input
                       type="tel"
-                      defaultValue="+1 809 555 1234"
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                      placeholder="+1 809 555 1234"
                       className="w-full px-4 py-3 rounded-xl border-2 border-black/10 focus:border-black focus:ring-4 focus:ring-black/5 outline-none transition-all duration-300"
                     />
                   </div>
@@ -539,19 +717,41 @@ const ProfilePageContent = () => {
                     <label className="block text-sm font-semibold text-black/70 mb-2">
                       País
                     </label>
-                    <select className="w-full px-4 py-3 rounded-xl border-2 border-black/10 focus:border-black focus:ring-4 focus:ring-black/5 outline-none transition-all duration-300">
+                    <select
+                      value={country}
+                      onChange={(e) => setCountry(e.target.value)}
+                      className="w-full px-4 py-3 rounded-xl border-2 border-black/10 focus:border-black focus:ring-4 focus:ring-black/5 outline-none transition-all duration-300"
+                    >
                       <option>República Dominicana</option>
                       <option>Estados Unidos</option>
                       <option>España</option>
                       <option>México</option>
+                      <option>Colombia</option>
+                      <option>Argentina</option>
+                      <option>Chile</option>
+                      <option>Otro</option>
                     </select>
                   </div>
                 </div>
                 <div className="mt-6 flex gap-3">
-                  <button className="px-6 py-3 bg-gradient-to-r from-black to-black-olive text-white rounded-xl font-semibold hover:shadow-lg transition-all duration-300 transform hover:scale-105">
-                    Guardar Cambios
+                  <button
+                    onClick={handleSaveProfile}
+                    disabled={isSaving}
+                    className="px-6 py-3 bg-gradient-to-r from-black to-black-olive text-white rounded-xl font-semibold hover:shadow-lg transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                  >
+                    {isSaving ? "Guardando..." : "Guardar Cambios"}
                   </button>
-                  <button className="px-6 py-3 bg-white border-2 border-black/10 text-black rounded-xl font-semibold hover:bg-black/5 transition-all duration-300">
+                  <button
+                    onClick={() => {
+                      // Resetear valores
+                      setFullName(user?.user_metadata?.full_name || "");
+                      setPhone(user?.user_metadata?.phone || "");
+                      setCountry(
+                        user?.user_metadata?.country || "República Dominicana"
+                      );
+                    }}
+                    className="px-6 py-3 bg-white border-2 border-black/10 text-black rounded-xl font-semibold hover:bg-black/5 transition-all duration-300"
+                  >
                     Cancelar
                   </button>
                 </div>
@@ -637,6 +837,25 @@ const ProfilePageContent = () => {
                   Zona Peligrosa
                 </h3>
                 <div className="space-y-4">
+                  <button
+                    onClick={handleSignOut}
+                    className="w-full px-6 py-3 bg-yellow-50 border-2 border-yellow-200 text-yellow-700 rounded-xl font-semibold hover:bg-yellow-100 transition-all duration-300 flex items-center justify-center gap-2"
+                  >
+                    <svg
+                      className="w-5 h-5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+                      />
+                    </svg>
+                    Cerrar Sesión
+                  </button>
                   <button className="w-full px-6 py-3 bg-red-50 border-2 border-red-200 text-red-600 rounded-xl font-semibold hover:bg-red-100 transition-all duration-300 flex items-center justify-center gap-2">
                     <svg
                       className="w-5 h-5"

@@ -4,6 +4,8 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { supabaseClient } from "@/lib/supabase/index";
+import { toast } from "sonner";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -15,11 +17,29 @@ export default function LoginPage() {
     e.preventDefault();
     setIsLoading(true);
 
-    // Simulate login process
-    setTimeout(() => {
+    try {
+      const { data, error } = await supabaseClient.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) {
+        if (error.message === "Invalid login credentials") {
+          toast.error("Email o contraseña incorrectos");
+        } else {
+          toast.error("Error al iniciar sesión. Por favor, intenta de nuevo.");
+        }
+        throw error;
+      }
+
+      toast.success("¡Bienvenido de vuelta!");
       router.push("/plan");
+      router.refresh();
+    } catch (error) {
+      console.error("Error logging in:", error);
+    } finally {
       setIsLoading(false);
-    }, 1500);
+    }
   };
 
   return (
