@@ -25,8 +25,18 @@ export const DraftList = ({
   onDeleteDraft,
   selectedDraftId,
 }: DraftListProps) => {
-  const { drafts } = useDraftStore();
+  const { drafts, initializeDrafts } = useDraftStore();
   const [isExpanded, setIsExpanded] = useState(true);
+  const [mounted, setMounted] = useState(false);
+
+  // Evitar hydration mismatch esperando a que el componente se monte en el cliente
+  useEffect(() => {
+    initializeDrafts(); // Cargar drafts desde localStorage
+    setMounted(true);
+  }, [initializeDrafts]);
+
+  // No renderizar hasta que esté montado en el cliente
+  if (!mounted) return null;
 
   // Ocultar sección si no hay drafts
   if (drafts.length === 0) return null;

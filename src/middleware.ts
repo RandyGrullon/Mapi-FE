@@ -48,18 +48,24 @@ export async function middleware(req: NextRequest) {
     data: { session },
   } = await supabase.auth.getSession();
 
-  // Rutas protegidas que requieren autenticación
-  const protectedPaths = ["/trip/", "/profile", "/wizard", "/wizard-modular"];
-  const isProtectedPath = protectedPaths.some((path) =>
-    req.nextUrl.pathname.startsWith(path)
+  // Rutas públicas que NO requieren autenticación
+  const publicPaths = ["/", "/login"];
+  const isPublicPath = publicPaths.some((path) =>
+    path === "/"
+      ? req.nextUrl.pathname === "/"
+      : req.nextUrl.pathname === path ||
+        req.nextUrl.pathname.startsWith(path + "/")
   );
 
-  if (isProtectedPath && !session) {
+  // Si el usuario NO está logueado y NO está en una ruta pública, redirigir al login
+  if (!session && !isPublicPath) {
     const redirectUrl = new URL("/login", req.url);
+    // Guardar la URL a la que intentaba acceder para redirigir después del login
     redirectUrl.searchParams.set("redirectTo", req.nextUrl.pathname);
     return NextResponse.redirect(redirectUrl);
   }
 
+  // Si el usuario está logueado y intenta acceder al login, redirigir a la página principal
   if (session && req.nextUrl.pathname === "/login") {
     return NextResponse.redirect(new URL("/", req.url));
   }

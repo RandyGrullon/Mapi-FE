@@ -42,6 +42,9 @@ export interface DraftState {
 
 // ========== DRAFT ACTIONS ==========
 export interface DraftActions {
+  // Inicialización
+  initializeDrafts: () => void;
+
   // CRUD de borradores
   saveDraft: (name?: string) => string; // Retorna el ID del draft
   loadDraft: (draftId: string) => boolean;

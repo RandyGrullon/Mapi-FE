@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { CompletedTrip, TripParticipant } from "../trips/CompletedTripsManager";
+import { CompletedTrip, TripParticipant } from "@/types/trip";
 import { Toast, ToastType } from "../ui/Toast";
 
 interface ShareModalProps {

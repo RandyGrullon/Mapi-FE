@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { supabaseClient } from "@/lib/supabase/index";
@@ -12,6 +12,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,7 +34,10 @@ export default function LoginPage() {
       }
 
       toast.success("¡Bienvenido de vuelta!");
-      router.push("/plan");
+
+      // Redirigir a la página que el usuario intentaba acceder o a /plan por defecto
+      const redirectTo = searchParams.get("redirectTo") || "/plan";
+      router.push(redirectTo);
       router.refresh();
     } catch (error) {
       console.error("Error logging in:", error);

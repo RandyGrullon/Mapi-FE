@@ -1,10 +1,14 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import React from "react";
+import React, { useState } from "react";
 import { CardButton } from "../buttons";
 import { ActionButton } from "../buttons";
 import { TravelPackage } from "@/types/travel";
+import { tripService } from "@/services/trips";
+import { supabaseClient } from "@/lib/supabase/client";
+import { useDraftStore } from "@/stores/draftStore";
+import { useWizardStore } from "@/stores/wizardStore";
 
 interface PackagesViewProps {
   packages: TravelPackage[];
@@ -13,6 +17,11 @@ interface PackagesViewProps {
 
 export const PackagesView = ({ packages, onSelect }: PackagesViewProps) => {
   const router = useRouter();
+  const [isCreatingTrip, setIsCreatingTrip] = useState(false);
+
+  // Draft store para eliminar el draft cuando se reserva
+  const { currentDraftId, deleteDraft, clearCurrentDraft } = useDraftStore();
+  const { resetWizard } = useWizardStore();
 
   const handleViewDetails = (pkg: TravelPackage) => {
     // Guardar el paquete en localStorage para acceder desde la página de detalles
@@ -21,9 +30,98 @@ export const PackagesView = ({ packages, onSelect }: PackagesViewProps) => {
     router.push(`/packages/${pkg.id}`);
   };
 
-  const handleSelect = (pkg: TravelPackage) => {
+  const handleSelect = async (pkg: TravelPackage) => {
     if (onSelect) {
       onSelect(pkg);
+      return;
+    }
+
+    // Crear viaje con el paquete seleccionado
+    await createTripFromPackage(pkg);
+  };
+
+  const createTripFromPackage = async (pkg: TravelPackage) => {
+    try {
+      setIsCreatingTrip(true);
+
+      // Obtener información del viaje del sessionStorage
+      const travelInfoStr = sessionStorage.getItem("travelInfo");
+      const travelInfo = travelInfoStr ? JSON.parse(travelInfoStr) : {};
+
+      // Crear el nombre del viaje basado en el destino
+      const tripName = `Viaje a ${pkg.flight.arrival}`;
+
+      // Crear descripción con los detalles del paquete
+      const tripDescription =
+        `${pkg.description}\n\n` +
+        `✈️ Vuelo: ${pkg.flight.airline} ${pkg.flight.flightNumber}\n` +
+        `🏨 Hotel: ${pkg.hotel.name} (${pkg.hotel.stars}⭐)\n` +
+        (pkg.carRental ? `🚗 Auto: ${pkg.carRental.carModel}\n` : "") +
+        `🎯 ${pkg.activities.length} actividades incluidas\n` +
+        `💰 Precio total: $${pkg.totalPrice}`;
+
+      // Obtener usuario actual
+      const {
+        data: { session },
+      } = await supabaseClient.auth.getSession();
+
+      if (!session?.user) {
+        alert("Debes iniciar sesión para crear un viaje");
+        router.push("/login");
+        return;
+      }
+
+      // Crear el viaje en la base de datos
+      const newTrip = (await tripService.createTrip({
+        user_id: session.user.id,
+        name: tripName,
+        description: tripDescription,
+        start_date:
+          travelInfo.startDate || new Date().toISOString().split("T")[0],
+        end_date:
+          travelInfo.endDate ||
+          new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+            .toISOString()
+            .split("T")[0],
+        status: "planned",
+      })) as {
+        id: string;
+        name: string;
+        description: string | null;
+        start_date: string | null;
+        end_date: string | null;
+      } | null;
+
+      if (newTrip?.id) {
+        console.log("✅ Viaje creado:", newTrip);
+
+        // Guardar el paquete completo en localStorage para acceder desde la página del viaje
+        localStorage.setItem(`trip-package-${newTrip.id}`, JSON.stringify(pkg));
+
+        // Eliminar el draft actual ya que se creó el viaje
+        if (currentDraftId) {
+          console.log(
+            "🗑️ Eliminando draft al reservar paquete:",
+            currentDraftId
+          );
+          deleteDraft(currentDraftId);
+          clearCurrentDraft();
+        }
+
+        // Resetear el wizard para la próxima vez
+        resetWizard();
+
+        // Redirigir a la página del viaje
+        router.push(`/trip/${newTrip.id}`);
+      } else {
+        console.error("❌ Error al crear el viaje");
+        alert("Hubo un error al crear el viaje. Por favor, intenta de nuevo.");
+      }
+    } catch (error) {
+      console.error("❌ Error al crear viaje:", error);
+      alert("Hubo un error al crear el viaje. Por favor, intenta de nuevo.");
+    } finally {
+      setIsCreatingTrip(false);
     }
   };
 
@@ -174,15 +272,24 @@ export const PackagesView = ({ packages, onSelect }: PackagesViewProps) => {
                   <div className="space-y-2">
                     <button
                       onClick={() => handleViewDetails(pkg)}
-                      className="w-full py-3 bg-gray-700 text-white rounded-lg font-semibold hover:bg-gray-600 transition-all text-sm"
+                      disabled={isCreatingTrip}
+                      className="w-full py-3 bg-gray-700 text-white rounded-lg font-semibold hover:bg-gray-600 transition-all text-sm disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       Ver Detalles
                     </button>
                     <button
                       onClick={() => handleSelect(pkg)}
-                      className="w-full py-3 bg-white text-gray-900 rounded-lg font-semibold hover:bg-gray-100 transition-all text-sm"
+                      disabled={isCreatingTrip}
+                      className="w-full py-3 bg-white text-gray-900 rounded-lg font-semibold hover:bg-gray-100 transition-all text-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                     >
-                      Reservar Ahora
+                      {isCreatingTrip ? (
+                        <>
+                          <div className="w-4 h-4 border-2 border-gray-900 border-t-transparent rounded-full animate-spin" />
+                          Creando viaje...
+                        </>
+                      ) : (
+                        "Reservar Ahora"
+                      )}
                     </button>
                   </div>
                 </div>
@@ -200,7 +307,8 @@ export const PackagesView = ({ packages, onSelect }: PackagesViewProps) => {
                         clipRule="evenodd"
                       />
                     </svg>
-                    Cancelación gratuita hasta 48h antes
+                    {pkg.benefits?.cancellation ||
+                      "Cancelación gratuita hasta 48h antes"}
                   </p>
                   <p className="flex items-center gap-2">
                     <svg
@@ -214,7 +322,7 @@ export const PackagesView = ({ packages, onSelect }: PackagesViewProps) => {
                         clipRule="evenodd"
                       />
                     </svg>
-                    Pago en cuotas sin interés
+                    {pkg.benefits?.payment || "Pago en cuotas sin interés"}
                   </p>
                   <p className="flex items-center gap-2">
                     <svg
@@ -228,7 +336,7 @@ export const PackagesView = ({ packages, onSelect }: PackagesViewProps) => {
                         clipRule="evenodd"
                       />
                     </svg>
-                    Soporte 24/7 durante el viaje
+                    {pkg.benefits?.support || "Soporte 24/7 durante el viaje"}
                   </p>
                 </div>
               </div>
@@ -317,15 +425,24 @@ export const PackagesView = ({ packages, onSelect }: PackagesViewProps) => {
                   <div className="flex gap-2">
                     <button
                       onClick={() => handleViewDetails(pkg)}
-                      className="flex-1 px-4 py-2 bg-gray-100 text-gray-900 rounded-lg text-sm font-semibold hover:bg-gray-200 transition-all"
+                      disabled={isCreatingTrip}
+                      className="flex-1 px-4 py-2 bg-gray-100 text-gray-900 rounded-lg text-sm font-semibold hover:bg-gray-200 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       Ver Detalles
                     </button>
                     <button
                       onClick={() => handleSelect(pkg)}
-                      className="flex-1 px-4 py-2 bg-gray-900 text-white rounded-lg text-sm font-semibold hover:bg-gray-800 transition-all shadow-sm hover:shadow"
+                      disabled={isCreatingTrip}
+                      className="flex-1 px-4 py-2 bg-gray-900 text-white rounded-lg text-sm font-semibold hover:bg-gray-800 transition-all shadow-sm hover:shadow disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                     >
-                      Seleccionar
+                      {isCreatingTrip ? (
+                        <>
+                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                          Creando viaje...
+                        </>
+                      ) : (
+                        "Seleccionar"
+                      )}
                     </button>
                   </div>
                 </div>

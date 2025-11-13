@@ -2,7 +2,7 @@
 
 import { useSidebar } from "../sidebar/SidebarContext";
 import { WelcomeScreen } from "../ui/WelcomeScreen";
-import { TripSummary } from "../trips/TripSummary";
+import { TripSummary } from "@/components/trips/trip-display/TripSummary";
 import { StepCard } from "./StepCard";
 import { StepForm } from "./StepForm";
 import { DualInputStep } from "./DualInputStep";
@@ -69,7 +69,7 @@ export const WizardContent = () => {
           {allStepsCompleted ? (
             <>
               <TripSummary />
-              <SearchButton travelInfo={travelInfo} onSearch={() => {}} />
+              <SearchButton travelInfo={travelInfo} />
             </>
           ) : (
             <>

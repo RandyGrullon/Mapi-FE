@@ -8,8 +8,8 @@ import {
   useEffect,
 } from "react";
 import { useRouter, usePathname } from "next/navigation";
-import { CompletedTrip } from "../trips/CompletedTripsManager";
-import { CompletedTripsManager } from "../trips/CompletedTripsManager";
+import { CompletedTrip } from "@/types/trip";
+import { CompletedTripsManager } from "../trips/trip-management/CompletedTripsManager";
 import { TravelInfo } from "../wizard/WizardProvider";
 
 type ViewType = "home" | "wizard" | "trip-detail" | "packages";
@@ -59,8 +59,9 @@ export const NavigationProvider = ({ children }: { children: ReactNode }) => {
     if (currentView === "trip-detail" && pathname.startsWith("/trip/")) {
       const tripId = pathname.split("/trip/")[1];
       if (tripId) {
-        const trip = CompletedTripsManager.getTrip(tripId);
-        setSelectedTrip(trip || null);
+        CompletedTripsManager.getTrip(tripId).then((trip) => {
+          setSelectedTrip(trip || null);
+        });
       }
     } else {
       setSelectedTrip(null);

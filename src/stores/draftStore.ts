@@ -142,10 +142,18 @@ export const useDraftStore = create<DraftStore>((set, get) => {
 
   return {
     // ========== ESTADO INICIAL ==========
-    drafts: loadDraftsFromStorage(),
+    drafts: [], // Inicializar vacío para evitar hydration mismatch
     currentDraftId: null,
     isAutoSaveEnabled: false,
     lastSavedAt: null,
+
+    // ========== INICIALIZAR DRAFTS (llamar desde useEffect en cliente) ==========
+    initializeDrafts: () => {
+      if (typeof window !== "undefined") {
+        const loadedDrafts = loadDraftsFromStorage();
+        set({ drafts: loadedDrafts });
+      }
+    },
 
     // ========== GUARDAR BORRADOR ==========
     saveDraft: (name?: string): string => {

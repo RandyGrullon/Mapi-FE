@@ -1,6 +1,6 @@
 "use client";
 
-import { CompletedTrip } from "../trips/CompletedTripsManager";
+import { CompletedTrip } from "@/types/trip";
 
 export const formatTripDate = (date: Date) => {
   return date.toLocaleDateString("es-ES", {

@@ -292,6 +292,62 @@ export interface Database {
           updated_at?: string;
         };
       };
+      notifications: {
+        Row: {
+          id: string;
+          user_id: string;
+          type:
+            | "trip_invite"
+            | "trip_update"
+            | "join_request"
+            | "system"
+            | "other";
+          title: string;
+          message: string;
+          read: boolean;
+          related_trip_id: string | null;
+          related_user_id: string | null;
+          action_url: string | null;
+          metadata: Json | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          type:
+            | "trip_invite"
+            | "trip_update"
+            | "join_request"
+            | "system"
+            | "other";
+          title: string;
+          message: string;
+          read?: boolean;
+          related_trip_id?: string | null;
+          related_user_id?: string | null;
+          action_url?: string | null;
+          metadata?: Json | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          type?:
+            | "trip_invite"
+            | "trip_update"
+            | "join_request"
+            | "system"
+            | "other";
+          title?: string;
+          message?: string;
+          read?: boolean;
+          related_trip_id?: string | null;
+          related_user_id?: string | null;
+          action_url?: string | null;
+          metadata?: Json | null;
+          created_at?: string;
+        };
+      };
     };
     Views: {
       [_ in never]: never;

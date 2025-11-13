@@ -8,6 +8,7 @@ interface TravelHeaderProps {
   selectedTab: TabType;
   onTabChange: (tab: TabType) => void;
   onNavigateBack: () => void;
+  selectedServices?: string[]; // Nuevo: servicios seleccionados en el wizard
 }
 
 export const TravelHeader = ({
@@ -15,14 +16,42 @@ export const TravelHeader = ({
   selectedTab,
   onTabChange,
   onNavigateBack,
+  selectedServices = [], // Default: array vacío
 }: TravelHeaderProps) => {
-  const tabs = [
-    { id: "packages" as TabType, label: "Paquetes", icon: "📦" },
-    { id: "flights" as TabType, label: "Vuelos", icon: "✈️" },
-    { id: "hotels" as TabType, label: "Hoteles", icon: "🏨" },
-    { id: "cars" as TabType, label: "Autos", icon: "🚗" },
-    { id: "activities" as TabType, label: "Actividades", icon: "🎯" },
+  // Definir todos los tabs disponibles
+  const allTabs = [
+    {
+      id: "packages" as TabType,
+      label: "Paquetes",
+      icon: "📦",
+      service: "packages",
+    },
+    {
+      id: "flights" as TabType,
+      label: "Vuelos",
+      icon: "✈️",
+      service: "flights",
+    },
+    { id: "hotels" as TabType, label: "Hoteles", icon: "🏨", service: "hotel" },
+    { id: "cars" as TabType, label: "Autos", icon: "🚗", service: "car" },
+    {
+      id: "activities" as TabType,
+      label: "Actividades",
+      icon: "🎯",
+      service: "activities",
+    },
   ];
+
+  // Filtrar tabs: siempre mostrar "Paquetes" + los servicios seleccionados
+  const tabs = allTabs.filter((tab) => {
+    if (tab.service === "packages") return true; // Siempre mostrar Paquetes
+    return selectedServices.includes(tab.service); // Mostrar solo si fue seleccionado
+  });
+
+  console.log("🎯 Tabs filtrados en TravelHeader:", {
+    selectedServices,
+    tabsVisibles: tabs.map((t) => t.label),
+  });
 
   return (
     <div className="bg-white border-b border-gray-200 shadow-sm flex-shrink-0">

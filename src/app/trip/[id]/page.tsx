@@ -2,11 +2,9 @@
 
 import { useParams } from "next/navigation";
 import { useState, useEffect } from "react";
-import { TripDetailPage } from "@/components/trips/TripDetailPage";
-import {
-  CompletedTripsManager,
-  CompletedTrip,
-} from "@/components/trips/CompletedTripsManager";
+import { TripDetailPage } from "@/components/trips/tripDetail/TripDetailPage";
+import { CompletedTripsManager } from "@/components/trips/trip-management/CompletedTripsManager";
+import { CompletedTrip } from "@/types/trip";
 import { NavigationProvider } from "@/components/navigation/NavigationContext";
 import { WizardProvider } from "@/components/wizard/WizardProvider";
 import { SidebarProvider } from "@/components/sidebar/SidebarContext";
@@ -20,8 +18,11 @@ const TripPageContent = () => {
 
   useEffect(() => {
     setIsClient(true);
-    const tripData = CompletedTripsManager.getTrip(tripId);
-    setTrip(tripData);
+    const loadTrip = async () => {
+      const tripData = await CompletedTripsManager.getTrip(tripId);
+      setTrip(tripData);
+    };
+    loadTrip();
   }, [tripId]);
 
   if (!isClient) {

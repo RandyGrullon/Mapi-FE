@@ -5,24 +5,71 @@ import { TravelInfo } from "../wizard/WizardProvider";
 import { useNavigation } from "../navigation/NavigationContext";
 import { useDraftStore } from "@/stores/draftStore";
 import { useWizardStore } from "@/stores/wizardStore";
+import { geminiService } from "@/services/gemini";
 
 interface SearchButtonProps {
   travelInfo: TravelInfo;
-  onSearch: () => void;
 }
 
-export const SearchButton = ({ travelInfo, onSearch }: SearchButtonProps) => {
+export const SearchButton = ({ travelInfo }: SearchButtonProps) => {
   const [isSearching, setIsSearching] = useState(false);
+  const [searchStage, setSearchStage] = useState<string>("");
   const { navigateToPackages } = useNavigation();
   const { currentDraftId, deleteDraft, clearCurrentDraft } = useDraftStore();
-  const { resetWizard } = useWizardStore();
+  const { selectedServices, resetWizard } = useWizardStore(); // Obtener selectedServices
 
-  const handleSearch = () => {
+  const handleSearch = async () => {
     setIsSearching(true);
 
-    // Simular búsqueda
-    setTimeout(() => {
-      setIsSearching(false);
+    try {
+      // Etapa 1: Preparando búsqueda
+      setSearchStage("Preparando búsqueda...");
+      await new Promise((resolve) => setTimeout(resolve, 800));
+
+      // Etapa 2: Consultando Gemini AI
+      setSearchStage("🤖 Consultando inteligencia artificial...");
+
+      // Preparar parámetros para Gemini
+      const searchParams = {
+        origin: travelInfo.origin,
+        destination: travelInfo.destination,
+        startDate: travelInfo.startDate,
+        endDate: travelInfo.endDate,
+        travelers: Number(travelInfo.travelers) || 1,
+        flightPreference: travelInfo.flightPreference,
+        accommodationType: travelInfo.accommodationType,
+        activities: Array.isArray(travelInfo.activities)
+          ? travelInfo.activities
+          : travelInfo.activities
+          ? [travelInfo.activities]
+          : [],
+        budget: travelInfo.budget,
+        selectedServices: selectedServices, // Pasar los servicios seleccionados
+      };
+
+      console.log("🔍 Iniciando búsqueda con Gemini AI:", searchParams);
+
+      // Llamar a Gemini AI
+      const searchResults = await geminiService.searchTravelOptions(
+        searchParams
+      );
+
+      console.log("✅ Resultados obtenidos de Gemini:", searchResults);
+
+      // Etapa 3: Procesando resultados
+      setSearchStage("✨ Procesando las mejores opciones...");
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
+      // Guardar los resultados en sessionStorage
+      sessionStorage.setItem(
+        "geminiSearchResults",
+        JSON.stringify(searchResults)
+      );
+      sessionStorage.setItem("travelInfo", JSON.stringify(travelInfo));
+
+      // Etapa 4: Finalizando
+      setSearchStage("✓ ¡Listo! Redirigiendo...");
+      await new Promise((resolve) => setTimeout(resolve, 500));
 
       // Eliminar el draft actual ya que el usuario va a crear un viaje
       if (currentDraftId) {
@@ -30,8 +77,27 @@ export const SearchButton = ({ travelInfo, onSearch }: SearchButtonProps) => {
         clearCurrentDraft();
       }
 
+      // Navegar a la página de paquetes con los resultados
       navigateToPackages(travelInfo);
-    }, 2000);
+    } catch (error) {
+      console.error("❌ Error en la búsqueda:", error);
+
+      // Mostrar error al usuario
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : "No se pudieron obtener opciones de viaje. Por favor, intenta de nuevo.";
+
+      setSearchStage(`❌ ${errorMessage}`);
+
+      // Esperar para que el usuario vea el error
+      await new Promise((resolve) => setTimeout(resolve, 3000));
+
+      // NO navegar, mantener al usuario en el wizard para que pueda intentar de nuevo
+    } finally {
+      setIsSearching(false);
+      setSearchStage("");
+    }
   };
   return (
     <div className="my-8 animate-fade-in">
@@ -56,7 +122,7 @@ export const SearchButton = ({ travelInfo, onSearch }: SearchButtonProps) => {
             <>
               <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin" />
               <span className="text-lg font-semibold">
-                Buscando opciones...
+                {searchStage || "Buscando opciones..."}
               </span>
             </>
           ) : (

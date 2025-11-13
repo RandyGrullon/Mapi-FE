@@ -3,9 +3,36 @@
 import { NavigationProvider } from "@/components/navigation/NavigationContext";
 import { WizardProvider } from "@/components/wizard/WizardProvider";
 import { useNavigation } from "@/components/navigation/NavigationContext";
+import { supabaseClient } from "@/lib/supabase/client";
+import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
 
 const HomePage = () => {
   const { navigateToLogin } = useNavigation();
+  const router = useRouter();
+  const [isCheckingAuth, setIsCheckingAuth] = useState(false);
+
+  const handleStartPlanning = async () => {
+    setIsCheckingAuth(true);
+    try {
+      const {
+        data: { session },
+      } = await supabaseClient.auth.getSession();
+
+      if (session?.user) {
+        // Usuario está logueado, ir directamente a plan
+        router.push("/plan");
+      } else {
+        // Usuario no está logueado, ir a login
+        navigateToLogin();
+      }
+    } catch (error) {
+      console.error("Error checking auth:", error);
+      navigateToLogin();
+    } finally {
+      setIsCheckingAuth(false);
+    }
+  };
 
   return (
     <div className="h-screen bg-gray-50">
@@ -23,10 +50,11 @@ const HomePage = () => {
             </div>
 
             <button
-              onClick={navigateToLogin}
-              className="bg-white text-black px-8 py-4 rounded-full font-bold text-lg hover:bg-gray-100 transition-all duration-300 transform hover:scale-105 shadow-xl"
+              onClick={handleStartPlanning}
+              disabled={isCheckingAuth}
+              className="bg-white text-black px-8 py-4 rounded-full font-bold text-lg hover:bg-gray-100 transition-all duration-300 transform hover:scale-105 shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Comenzar a Planificar
+              {isCheckingAuth ? "Verificando..." : "Comenzar a Planificar"}
             </button>
           </div>
         </section>

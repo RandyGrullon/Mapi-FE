@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { CompletedTrip } from "../trips/CompletedTripsManager";
+import { CompletedTrip } from "@/types/trip";
 import { Toast, ToastType } from "../ui/Toast";
 
 interface EditTripNameModalProps {

@@ -3,6 +3,10 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { TravelPackage } from "@/types/travel";
+import { tripService } from "@/services/trips";
+import { supabaseClient } from "@/lib/supabase/client";
+import { useDraftStore } from "@/stores/draftStore";
+import { useWizardStore } from "@/stores/wizardStore";
 
 interface PackageDetailsViewProps {
   packageData: TravelPackage;
@@ -15,6 +19,101 @@ export const PackageDetailsView = ({
   const [activeTab, setActiveTab] = useState<
     "overview" | "flight" | "hotel" | "car" | "activities"
   >("overview");
+  const [isCreatingTrip, setIsCreatingTrip] = useState(false);
+
+  // Draft store para eliminar el draft cuando se reserva
+  const { currentDraftId, deleteDraft, clearCurrentDraft } = useDraftStore();
+  const { resetWizard } = useWizardStore();
+
+  const handleReserve = async () => {
+    try {
+      setIsCreatingTrip(true);
+
+      // Obtener información del viaje del sessionStorage
+      const travelInfoStr = sessionStorage.getItem("travelInfo");
+      const travelInfo = travelInfoStr ? JSON.parse(travelInfoStr) : {};
+
+      // Crear el nombre del viaje basado en el destino
+      const tripName = `Viaje a ${packageData.flight.arrival}`;
+
+      // Crear descripción con los detalles del paquete
+      const tripDescription =
+        `${packageData.description}\n\n` +
+        `✈️ Vuelo: ${packageData.flight.airline} ${packageData.flight.flightNumber}\n` +
+        `🏨 Hotel: ${packageData.hotel.name} (${packageData.hotel.stars}⭐)\n` +
+        (packageData.carRental
+          ? `🚗 Auto: ${packageData.carRental.carModel}\n`
+          : "") +
+        `🎯 ${packageData.activities.length} actividades incluidas\n` +
+        `💰 Precio total: $${packageData.totalPrice}`;
+
+      // Obtener usuario actual
+      const {
+        data: { session },
+      } = await supabaseClient.auth.getSession();
+
+      if (!session?.user) {
+        alert("Debes iniciar sesión para crear un viaje");
+        router.push("/login");
+        return;
+      }
+
+      // Crear el viaje en la base de datos
+      const newTrip = (await tripService.createTrip({
+        user_id: session.user.id,
+        name: tripName,
+        description: tripDescription,
+        start_date:
+          travelInfo.startDate || new Date().toISOString().split("T")[0],
+        end_date:
+          travelInfo.endDate ||
+          new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+            .toISOString()
+            .split("T")[0],
+        status: "planned",
+      })) as {
+        id: string;
+        name: string;
+        description: string | null;
+        start_date: string | null;
+        end_date: string | null;
+      } | null;
+
+      if (newTrip?.id) {
+        console.log("✅ Viaje creado:", newTrip);
+
+        // Guardar el paquete completo en localStorage para acceder desde la página del viaje
+        localStorage.setItem(
+          `trip-package-${newTrip.id}`,
+          JSON.stringify(packageData)
+        );
+
+        // Eliminar el draft actual ya que se creó el viaje
+        if (currentDraftId) {
+          console.log(
+            "🗑️ Eliminando draft al reservar paquete:",
+            currentDraftId
+          );
+          deleteDraft(currentDraftId);
+          clearCurrentDraft();
+        }
+
+        // Resetear el wizard para la próxima vez
+        resetWizard();
+
+        // Redirigir a la página del viaje
+        router.push(`/trip/${newTrip.id}`);
+      } else {
+        console.error("❌ Error al crear el viaje");
+        alert("Hubo un error al crear el viaje. Por favor, intenta de nuevo.");
+      }
+    } catch (error) {
+      console.error("❌ Error en handleReserve:", error);
+      alert("Hubo un error al crear el viaje. Por favor, intenta de nuevo.");
+    } finally {
+      setIsCreatingTrip(false);
+    }
+  };
 
   const tabs = [
     { id: "overview" as const, label: "Resumen", icon: "📋" },
@@ -78,8 +177,19 @@ export const PackageDetailsView = ({
                   ✓ Ahorras ${packageData.savings}
                 </p>
               )}
-              <button className="w-full py-3 bg-white text-gray-900 rounded-lg font-semibold hover:bg-gray-100 transition-all shadow-lg text-sm sm:text-base">
-                Reservar Ahora
+              <button
+                onClick={handleReserve}
+                disabled={isCreatingTrip}
+                className="w-full py-3 bg-white text-gray-900 rounded-lg font-semibold hover:bg-gray-100 transition-all shadow-lg text-sm sm:text-base disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              >
+                {isCreatingTrip ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-gray-900 border-t-transparent rounded-full animate-spin" />
+                    Creando viaje...
+                  </>
+                ) : (
+                  "Reservar Ahora"
+                )}
               </button>
             </div>
           </div>
@@ -371,7 +481,8 @@ const OverviewTab = ({ packageData }: { packageData: TravelPackage }) => {
                 Cancelación Gratuita
               </p>
               <p className="text-sm text-gray-600">
-                Hasta 48 horas antes del viaje
+                {packageData.benefits?.cancellation ||
+                  "Hasta 48 horas antes del viaje"}
               </p>
             </div>
           </div>
@@ -392,7 +503,7 @@ const OverviewTab = ({ packageData }: { packageData: TravelPackage }) => {
                 Pago en Cuotas
               </p>
               <p className="text-sm text-gray-600">
-                Sin interés hasta 12 meses
+                {packageData.benefits?.payment || "Sin interés hasta 12 meses"}
               </p>
             </div>
           </div>
@@ -412,7 +523,9 @@ const OverviewTab = ({ packageData }: { packageData: TravelPackage }) => {
               <p className="font-semibold text-gray-900 text-base">
                 Soporte 24/7
               </p>
-              <p className="text-sm text-gray-600">Durante todo tu viaje</p>
+              <p className="text-sm text-gray-600">
+                {packageData.benefits?.support || "Durante todo tu viaje"}
+              </p>
             </div>
           </div>
           <div className="flex items-start gap-3">

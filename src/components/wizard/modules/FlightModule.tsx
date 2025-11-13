@@ -33,8 +33,13 @@ export const FlightModule = ({
     return <FlightRoutesStep data={data} onUpdate={onUpdate} />;
   }
 
-  // ========== PASO 3: DETALLES ADICIONALES ==========
+  // ========== PASO 3: FECHAS DE VUELOS ==========
   if (currentStep === 2) {
+    return <FlightDatesStep data={data} onUpdate={onUpdate} />;
+  }
+
+  // ========== PASO 4: DETALLES ADICIONALES ==========
+  if (currentStep === 3) {
     return (
       <FlightDetailsStep
         data={data}
@@ -376,7 +381,163 @@ const FlightRoutesStep = ({
   );
 };
 
-// ========== PASO 3: DETALLES ADICIONALES ==========
+// ========== PASO 3: FECHAS DE LOS VUELOS ==========
+const FlightDatesStep = ({
+  data,
+  onUpdate,
+}: {
+  data: FlightModuleData;
+  onUpdate: (data: Partial<FlightModuleData>) => void;
+}) => {
+  const { nextModule, previousModule } = useWizardStore();
+  const [segments, setSegments] = useState<FlightSegment[]>(data.segments);
+
+  useEffect(() => {
+    onUpdate({ segments });
+  }, [segments]);
+
+  const updateSegmentDate = (index: number, date: string) => {
+    const newSegments = [...segments];
+    newSegments[index] = { ...newSegments[index], date };
+    setSegments(newSegments);
+  };
+
+  const canContinue = segments.every((seg) => seg.date);
+
+  const getDateLabel = (index: number) => {
+    if (data.flightType === FlightType.ONE_WAY) {
+      return "Fecha de salida";
+    }
+    if (data.flightType === FlightType.ROUND_TRIP) {
+      return index === 0 ? "Fecha de salida" : "Fecha de regreso";
+    }
+    return `Fecha del vuelo ${index + 1}`;
+  };
+
+  const getSegmentTitle = (index: number) => {
+    if (data.flightType === FlightType.ROUND_TRIP) {
+      return index === 0 ? "Vuelo de ida" : "Vuelo de regreso";
+    }
+    return `Vuelo ${index + 1}`;
+  };
+
+  // Obtener la fecha mínima para cada segmento
+  const getMinDate = (index: number) => {
+    if (index === 0) {
+      // El primer vuelo debe ser como mínimo mañana
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      return tomorrow.toISOString().split("T")[0];
+    }
+    // Los siguientes vuelos deben ser después del vuelo anterior
+    const previousDate = segments[index - 1]?.date;
+    if (previousDate) {
+      const minDate = new Date(previousDate);
+      minDate.setDate(minDate.getDate() + 1);
+      return minDate.toISOString().split("T")[0];
+    }
+    return new Date().toISOString().split("T")[0];
+  };
+
+  return (
+    <div className="w-full max-w-2xl mx-auto">
+      <div className="text-center mb-8">
+        <h2 className="text-2xl font-bold text-gray-900 mb-2">
+          ¿Cuáles son las fechas de tu viaje?
+        </h2>
+        <p className="text-gray-600">Selecciona las fechas para cada vuelo</p>
+      </div>
+
+      <div className="space-y-6">
+        {segments.map((segment, index) => (
+          <div
+            key={segment.id}
+            className="bg-white rounded-xl border-2 border-gray-200 p-6"
+          >
+            {/* Título y ruta del segmento */}
+            <div className="mb-4">
+              <h3 className="font-semibold text-gray-900 mb-2">
+                {getSegmentTitle(index)}
+              </h3>
+              <div className="flex items-center gap-2 text-sm text-gray-600">
+                <span className="font-medium">{segment.from}</span>
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M13 7l5 5m0 0l-5 5m5-5H6"
+                  />
+                </svg>
+                <span className="font-medium">{segment.to}</span>
+              </div>
+            </div>
+
+            {/* Campo de fecha */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                {getDateLabel(index)}
+              </label>
+              <input
+                type="date"
+                value={segment.date || ""}
+                min={getMinDate(index)}
+                onChange={(e) => updateSegmentDate(index, e.target.value)}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
+              />
+              {segment.date && (
+                <div className="mt-2 text-sm text-gray-600">
+                  Fecha seleccionada:{" "}
+                  <span className="font-semibold">
+                    {new Date(segment.date + "T00:00:00").toLocaleDateString(
+                      "es-ES",
+                      {
+                        day: "2-digit",
+                        month: "2-digit",
+                        year: "numeric",
+                      }
+                    )}
+                  </span>
+                </div>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Botones de navegación */}
+      <div className="flex gap-4 mt-8">
+        <button
+          onClick={previousModule}
+          className="flex-1 px-6 py-3 border-2 border-gray-300 rounded-xl font-semibold hover:bg-gray-50 transition-colors"
+        >
+          Atrás
+        </button>
+        <button
+          onClick={nextModule}
+          disabled={!canContinue}
+          className={`
+            flex-1 px-6 py-3 rounded-xl font-semibold transition-all
+            ${
+              canContinue
+                ? "bg-black text-white hover:bg-gray-800"
+                : "bg-gray-200 text-gray-400 cursor-not-allowed"
+            }
+          `}
+        >
+          Continuar
+        </button>
+      </div>
+    </div>
+  );
+};
+
+// ========== PASO 4: DETALLES ADICIONALES ==========
 const FlightDetailsStep = ({
   data,
   onUpdate,

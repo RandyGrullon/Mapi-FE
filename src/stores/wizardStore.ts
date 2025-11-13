@@ -56,7 +56,7 @@ const getInitialModuleData = (type: ServiceType): ModuleData => {
 const getTotalSteps = (type: ServiceType): number => {
   switch (type) {
     case ServiceType.FLIGHTS:
-      return 3; // 1: Tipo de vuelo, 2: Rutas, 3: Detalles
+      return 4; // 1: Tipo de vuelo, 2: Rutas, 3: Fechas, 4: Detalles
     case ServiceType.HOTEL:
       return 2; // 1: Destino y fechas, 2: Habitaciones
     case ServiceType.CAR:
